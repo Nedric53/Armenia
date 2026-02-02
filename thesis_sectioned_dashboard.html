@@ -24,7 +24,7 @@
   </style>
 </head>
 <body>
-  <h2>Interactive figures: city layout, Figure 1, Figure 2–3</h2>
+  <h2>Interactive figures: city layout, Figure 1, Figure 2-3</h2>
 
   <!-- SECTION 1: CITY LAYOUT -->
   <div class="card" style="margin-bottom:14px;">
@@ -56,7 +56,7 @@
         <div class="row">
           <label for="t_layout">t</label>
           <div><span id="t_layout_val"></span></div>
-          <input id="t_layout" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
+          <input id="t_layout" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
         </div>
 
         <hr/>
@@ -87,7 +87,7 @@
       <div>
         <div class="sectionTitle">Figure 1 style: move the historic center location</div>
         <div class="small">
-          Here we sweep g from 0 up to the chosen maximum. For each g, we compute where the business area would sit.
+          Here we sweep g from 0 up to 1.0. For each g, we compute where the business area would sit.
           The shaded band between the two lines is the business area.
         </div>
 
@@ -106,13 +106,7 @@
         <div class="row">
           <label for="t_fig1">t</label>
           <div><span id="t_fig1_val"></span></div>
-          <input id="t_fig1" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
-        </div>
-
-        <div class="row">
-          <label for="gmax_fig1">g max</label>
-          <div><span id="gmax_fig1_val"></span></div>
-          <input id="gmax_fig1" type="range" min="0.20" max="1.00" step="0.05" value="1.00"/>
+          <input id="t_fig1" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
         </div>
 
         <div class="small" style="margin-top:8px;">
@@ -130,9 +124,9 @@
   <div class="card">
     <div class="section">
       <div>
-        <div class="sectionTitle">Figure 2–3 style: move transport cost</div>
+        <div class="sectionTitle">Figure 2-3 style: move transport cost</div>
         <div class="small">
-          Here we sweep t from the chosen minimum to maximum. For each t, we compute the business area edges.
+          Here we sweep t from 0.0 to 1.5. For each t, we compute the business area edges.
           The dashed line marks the historic center g. Dots show the current t from the slider.
         </div>
 
@@ -157,21 +151,7 @@
         <div class="row">
           <label for="t_fig2">t (current)</label>
           <div><span id="t_fig2_val"></span></div>
-          <input id="t_fig2" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
-        </div>
-
-        <hr/>
-
-        <div class="row">
-          <label for="tmin_fig2">t min</label>
-          <div><span id="tmin_fig2_val"></span></div>
-          <input id="tmin_fig2" type="range" min="0.00" max="0.80" step="0.01" value="0.01"/>
-        </div>
-
-        <div class="row">
-          <label for="tmax_fig2">t max</label>
-          <div><span id="tmax_fig2_val"></span></div>
-          <input id="tmax_fig2" type="range" min="0.05" max="1.50" step="0.01" value="0.50"/>
+          <input id="t_fig2" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
         </div>
       </div>
 
@@ -192,7 +172,7 @@
     return x.toFixed(4);
   }
 
-  // Model solver (same logic as before, but UI shows only human text)
+  // Model solver
   function solveBounds(N, t, e, g) {
     if (!(N > 0 && N < 2)) return { ok:false, reason:"N must be between 0 and 2." };
     if (!(e > 0)) return { ok:false, reason:"e must be positive." };
@@ -275,30 +255,21 @@
     N: 1.40,
     e: 0.10,
     g: 0.25,
-    t: 0.25,
-    gmax: 1.00,
-    tmin: 0.01,
-    tmax: 0.50
+    t: 0.25
   };
 
   const sliderMap = {
-    N:    ["N_layout","N_fig1","N_fig2"],
-    e:    ["e_layout","e_fig1","e_fig2"],
-    g:    ["g_layout","g_fig2"],
-    t:    ["t_layout","t_fig1","t_fig2"],
-    gmax: ["gmax_fig1"],
-    tmin: ["tmin_fig2"],
-    tmax: ["tmax_fig2"]
+    N: ["N_layout","N_fig1","N_fig2"],
+    e: ["e_layout","e_fig1","e_fig2"],
+    g: ["g_layout","g_fig2"],
+    t: ["t_layout","t_fig1","t_fig2"]
   };
 
   const valueLabelMap = {
     N_layout: "N_layout_val", N_fig1: "N_fig1_val", N_fig2: "N_fig2_val",
     e_layout: "e_layout_val", e_fig1: "e_fig1_val", e_fig2: "e_fig2_val",
     g_layout: "g_layout_val", g_fig2: "g_fig2_val",
-    t_layout: "t_layout_val", t_fig1: "t_fig1_val", t_fig2: "t_fig2_val",
-    gmax_fig1: "gmax_fig1_val",
-    tmin_fig2: "tmin_fig2_val",
-    tmax_fig2: "tmax_fig2_val"
+    t_layout: "t_layout_val", t_fig1: "t_fig1_val", t_fig2: "t_fig2_val"
   };
 
   let isPropagating = false;
@@ -341,13 +312,6 @@
     const newVal = readSlider(sourceId);
     state[changedParam] = newVal;
 
-    // Enforce basic consistency for sweep ranges
-    if (changedParam === "tmin" || changedParam === "tmax") {
-      if (!(state.tmax > state.tmin)) {
-        state.tmax = state.tmin + 0.01;
-      }
-    }
-
     // Push state into all sliders that represent this param
     for (const id of sliderMap[changedParam]) {
       if (id !== sourceId && document.getElementById(id)) setSlider(id, state[changedParam]);
@@ -389,9 +353,10 @@
     Plotly.react("plot_layout", data, layout, {displayModeBar: false});
   }
 
-  // Plot: Figure 1
+  // Plot: Figure 1 (gmax fixed at 1.0)
   function drawFig1() {
-    const N = state.N, e = state.e, t = state.t, gmax = state.gmax;
+    const N = state.N, e = state.e, t = state.t;
+    const gmax = 1.0;
     const n = 360;
 
     const gs = [];
@@ -424,11 +389,11 @@
     Plotly.react("plot_fig1", data, layout, {displayModeBar: false});
   }
 
-  // Plot: Figure 2-3
+  // Plot: Figure 2-3 (tmin fixed at 0.0, tmax fixed at 1.5)
   function drawFig2() {
     const N = state.N, e = state.e, g = state.g;
-    let tmin = state.tmin, tmax = state.tmax;
-    if (!(tmax > tmin)) tmax = tmin + 0.01;
+    const tmin = 0.0;
+    const tmax = 1.5;
 
     const n = 320;
     const ts = [];
@@ -485,7 +450,6 @@
   function updateAll() {
     const sol = solveBounds(state.N, state.t, state.e, state.g);
     updateText(sol);
-
     drawLayout(sol);
     drawFig1();
     drawFig2();
@@ -504,12 +468,6 @@
           for (const [param, idList] of Object.entries(sliderMap)) {
             const first = idList.find(x => document.getElementById(x));
             if (first) state[param] = readSlider(first);
-          }
-
-          // Keep sweep range valid
-          if (!(state.tmax > state.tmin)) {
-            state.tmax = state.tmin + 0.01;
-            setSlider("tmax_fig2", state.tmax);
           }
 
           updateAll();
