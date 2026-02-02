@@ -239,7 +239,53 @@
       .imgGrid.cols2{ grid-template-columns: 1fr; }
       .explainGrid{ grid-template-columns: 1fr; }
     }
-  </style>
+  
+
+/* ---- injected: model focus zoom (landing page) ---- */
+#model .modelGrid{
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding-bottom: 48px;
+}
+
+#model .stepsCol{
+  flex: 0 0 44%;
+  padding-right: 10px;
+  transition: flex-basis 650ms cubic-bezier(.2,.8,.2,1), opacity 650ms cubic-bezier(.2,.8,.2,1);
+}
+
+#model .stickyViz{
+  flex: 1 1 auto;
+  transition: flex-basis 650ms cubic-bezier(.2,.8,.2,1), box-shadow 650ms cubic-bezier(.2,.8,.2,1), transform 650ms cubic-bezier(.2,.8,.2,1);
+}
+
+body.modelFocus #model .container{
+  max-width: 96vw;
+  transition: max-width 650ms cubic-bezier(.2,.8,.2,1);
+}
+
+body.modelFocus #model .stepsCol{
+  flex-basis: 26%;
+  opacity: 0.95;
+}
+
+body.modelFocus #model .stickyViz{
+  flex-basis: 74%;
+  box-shadow: 0 24px 70px rgba(0,0,0,.14);
+  transform: translateY(-2px);
+}
+
+/* mobile: keep it simple */
+@media (max-width: 980px){
+  #model .modelGrid{ flex-direction: column; }
+  #model .stepsCol{ flex-basis: auto; padding-right: 0; }
+  body.modelFocus #model .stepsCol{ flex-basis: auto; }
+  body.modelFocus #model .stickyViz{ flex-basis: auto; transform: none; }
+}
+/* ---- end injected block ---- */
+
+</style>
 </head>
 
 <body id="top">
@@ -559,6 +605,44 @@
     setTimeout(() => {
       if (steps.length) activateStep(steps[0], 0);
     }, 700);
-  </script>
+  
+
+    // ---- injected: zoom in/out when model section is active ----
+    const modelSection = document.getElementById("model");
+    const afterModel = document.getElementById("gallery2"); // section after model
+
+    function setModelFocus(on) {
+      document.body.classList.toggle("modelFocus", !!on);
+
+      // Leaflet in iframe usually needs a size refresh after layout transitions
+      sendToViz({ type: "invalidateSize" });
+      setTimeout(() => sendToViz({ type: "invalidateSize" }), 350);
+      setTimeout(() => sendToViz({ type: "invalidateSize" }), 750);
+    }
+
+    if (modelSection) {
+      const modelObs = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setModelFocus(true);
+          else setModelFocus(false);
+        }
+      }, { threshold: 0.25 });
+
+      modelObs.observe(modelSection);
+    }
+
+    // strong zoom-out once the next section is reached
+    if (afterModel) {
+      const endObs = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setModelFocus(false);
+        }
+      }, { threshold: 0.15 });
+
+      endObs.observe(afterModel);
+    }
+    // ---- end injected block ----
+
+</script>
 </body>
 </html>
