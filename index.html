@@ -36,7 +36,6 @@
       background: var(--bg);
       color: var(--text);
     }
-
     a{ color: inherit; text-decoration: none; }
     .container{ max-width: var(--max); margin: 0 auto; padding: 0 22px; }
 
@@ -44,7 +43,7 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(250,250,250,.82);
+      background: rgba(250,250,250,.86);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--line);
     }
@@ -55,16 +54,8 @@
       padding: 14px 0;
       gap: 16px;
     }
-    .brand{
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .navLinks{
-      display:flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
+    .brand{ font-weight: 700; letter-spacing: -0.02em; }
+    .navLinks{ display:flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
     .navLinks a{
       font-size: 13px;
       color: var(--muted);
@@ -108,12 +99,7 @@
       max-width: 54ch;
       margin: 0 0 22px 0;
     }
-    .ctaRow{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
-    }
+    .ctaRow{ display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
     .btn{
       display:inline-flex;
       align-items:center;
@@ -122,7 +108,7 @@
       padding: 0 16px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,.8);
+      background: rgba(255,255,255,.86);
       font-weight: 600;
       font-size: 13px;
     }
@@ -131,6 +117,7 @@
       color: #fff;
       border-color: #111;
     }
+
     .heroCard{
       background: var(--panel);
       border: 1px solid var(--line);
@@ -138,18 +125,8 @@
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(0,0,0,.04);
     }
-    .heroCard img{
-      width:100%;
-      height: 360px;
-      object-fit: cover;
-      display:block;
-    }
-    .heroMeta{
-      padding: 14px 14px 16px 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
+    .heroCard img{ width:100%; height: 360px; object-fit: cover; display:block; }
+    .heroMeta{ padding: 14px 14px 16px 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
     .section{ padding: 46px 0; }
     .sectionTitle{
@@ -160,10 +137,7 @@
       margin-bottom: 18px;
     }
     .sectionTitle h2{ margin:0; font-size: 22px; letter-spacing: -0.02em; }
-    .sectionTitle p{
-      margin:0; color: var(--muted); font-size: 13px;
-      max-width: 58ch; line-height: 1.5;
-    }
+    .sectionTitle p{ margin:0; color: var(--muted); font-size: 13px; max-width: 58ch; line-height: 1.5; }
 
     .imgGrid{ display:grid; gap: 14px; }
     .imgGrid.cols3{ grid-template-columns: repeat(3, 1fr); }
@@ -191,6 +165,8 @@
       gap: 18px;
       padding-bottom: 48px;
     }
+    .stepsCol{ padding-right: 10px; }
+
     .stickyViz{
       position: sticky;
       top: 74px;
@@ -201,14 +177,7 @@
       background: #f3f3f3;
       box-shadow: var(--shadow);
     }
-    .stickyViz iframe{
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display:block;
-      background: #fff;
-    }
-    .stepsCol{ padding-right: 10px; }
+    .stickyViz iframe{ width: 100%; height: 100%; border: 0; display:block; background: #fff; }
 
     .modelMiniBar{
       display:flex;
@@ -302,7 +271,7 @@
         </div>
 
         <div class="heroCard">
-          <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221800%22%20height%3D%221200%22%20viewBox%3D%220%200%201800%201200%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221800%22%20height%3D%221200%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221704%22%20height%3D%221104%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EHero%20image%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="" loading="eager">
+          <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221800%22%20height%3D%221200%22%20viewBox%3D%220%200%201800%201200%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221800%22%20height%3D%221200%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221704%22%20height%3D%221104%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EHero%20image%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="" loading="eager">
           <div class="heroMeta">Replace with a real image in assets/ and update the path.</div>
         </div>
       </div>
@@ -316,23 +285,21 @@
         <p>Supporting visuals before the model.</p>
       </div>
       <div class="imgGrid cols3">
-
             <figure class="imgCard">
-              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%201%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
+              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%201%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
               <figcaption>Replace with assets/ images</figcaption>
             </figure>
             
             <figure class="imgCard">
-              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%202%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
+              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%202%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
               <figcaption>Replace with assets/ images</figcaption>
             </figure>
             
             <figure class="imgCard">
-              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%203%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
+              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EContext%20image%203%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
               <figcaption>Replace with assets/ images</figcaption>
             </figure>
-            
-</div>
+            </div>
     </div>
   </section>
 
@@ -353,17 +320,17 @@
         <div class="stepsCol">
           
             <section class="step"
-                data-title="Baseline"
-                data-t="1.00"
-                data-a="1.00"
-                data-view-lat=""
-                data-view-lon=""
-                data-view-zoom="">
+              data-title="Baseline"
+              data-t="1.00"
+              data-a="1.00"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="">
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Baseline assumptions</h3>
                 <p class="stepBody">Reference case for transport and amenity strength.</p>
-                <p class="stepHint">Scroll to switch scenarios. The model updates immediately.</p>
+                <p class='stepHint'>Scroll to switch scenarios. The model updates immediately.</p>
                 <div class="chipRow">
                   <span class="chip">Transport: 1.00</span>
                   <span class="chip">Amenity: 1.00</span>
@@ -373,12 +340,12 @@
             
 
             <section class="step"
-                data-title="Faster transport"
-                data-t="0.70"
-                data-a="1.00"
-                data-view-lat=""
-                data-view-lon=""
-                data-view-zoom="">
+              data-title="Faster transport"
+              data-t="0.70"
+              data-a="1.00"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="">
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Faster transport</h3>
@@ -393,12 +360,12 @@
             
 
             <section class="step"
-                data-title="Slower transport"
-                data-t="1.50"
-                data-a="1.00"
-                data-view-lat=""
-                data-view-lon=""
-                data-view-zoom="">
+              data-title="Slower transport"
+              data-t="1.50"
+              data-a="1.00"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="">
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Slower transport</h3>
@@ -413,12 +380,12 @@
             
 
             <section class="step"
-                data-title="Historic pull"
-                data-t="1.00"
-                data-a="1.60"
-                data-view-lat=""
-                data-view-lon=""
-                data-view-zoom="">
+              data-title="Historic pull"
+              data-t="1.00"
+              data-a="1.60"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="">
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Historic amenities matter more</h3>
@@ -433,12 +400,12 @@
             
 
             <section class="step"
-                data-title="Weaker amenities"
-                data-t="1.00"
-                data-a="0.60"
-                data-view-lat=""
-                data-view-lon=""
-                data-view-zoom="">
+              data-title="Weaker amenities"
+              data-t="1.00"
+              data-a="0.60"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="">
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Historic amenities matter less</h3>
@@ -467,18 +434,16 @@
         <p>More figures or screenshots after the model.</p>
       </div>
       <div class="imgGrid cols2">
-
             <figure class="imgCard">
-              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EMore%20image%201%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
+              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EMore%20image%201%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
               <figcaption>Replace with assets/ images</figcaption>
             </figure>
             
             <figure class="imgCard">
-              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EMore%20image%202%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20this%20with%20a%20real%20image%20in%20assets/%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
+              <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221600%22%20height%3D%221000%22%20viewBox%3D%220%200%201600%201000%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f2f2f2%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23dcdcdc%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%221600%22%20height%3D%221000%22%20rx%3D%2248%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2248%22%20y%3D%2248%22%20width%3D%221504%22%20height%3D%22904%22%20rx%3D%2236%22%20fill%3D%22none%22%20stroke%3D%22%23bdbdbd%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2252%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2254%22%20fill%3D%22%23333%22%3EMore%20image%202%3C/text%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2259%25%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Replace%20with%20assets/%20image%0A%20%20%3C/text%3E%0A%3C/svg%3E" alt="Replace with assets/ images" loading="lazy"/>
               <figcaption>Replace with assets/ images</figcaption>
             </figure>
-            
-</div>
+            </div>
     </div>
   </section>
 
@@ -523,7 +488,7 @@
 
         <div class="embedCard">
           <iframe
-            src="thesis_fig1_fig2_dashboard.html"
+            src="thesis_sectioned_dashboard.html"
             title="Theoretical modelling dashboard"
             loading="lazy"
             style="width:100%; height:1050px; border:0; display:block; background:#fff;">
