@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Yerevan scrolly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.45;
+      color: #111;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: white;
+      border-bottom: 1px solid #e6e6e6;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress {
+      height: 6px;
+      flex: 1;
+      background: #f0f0f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: #111;
+    }
+
+    .wrap {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 0;
+      min-height: 100vh;
+    }
+
+    .story {
+      padding: 24px 18px 40vh 18px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .step {
+      padding: 18px 16px;
+      margin: 0 0 18px 0;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    }
+
+    .step.is-active {
+      border-color: #111;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+    }
+
+    .hint {
+      color: #555;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 48px;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    @media (max-width: 980px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+      .sticky {
+        position: relative;
+        top: 0;
+        height: 70vh;
+        border-left: 0;
+        border-top: 1px solid #eee;
+      }
+      .story {
+        padding-bottom: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div style="font-weight:700;">Yerevan scrolly</div>
+    <div class="progress"><div id="progBar"></div></div>
+    <div id="stepName" style="min-width:170px; text-align:right; font-size:13px; color:#333;"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="story">
+      <h1 style="margin-top:0;">Moving centers with transport and amenities</h1>
+      <p style="color:#444;">
+        Scroll to change the model inputs. The map on the right is your interactive, driven by the story.
+      </p>
+
+      
+            <div class="step"
+                 data-title="Baseline"
+                 data-t="1.00"
+                 data-a="1.00"
+                 data-view-lat=""
+                 data-view-lon=""
+                 data-view-zoom="">
+              <h3 style="margin:0 0 8px 0;">Baseline assumptions</h3>
+              <div>Transport=1.00, Amenity=1.00</div>
+              
+            </div>
+            
+
+            <div class="step"
+                 data-title="Faster transport"
+                 data-t="0.70"
+                 data-a="1.00"
+                 data-view-lat=""
+                 data-view-lon=""
+                 data-view-zoom="">
+              <h3 style="margin:0 0 8px 0;">Cheaper time</h3>
+              <div>Lower transport factor</div>
+              
+            </div>
+            
+
+            <div class="step"
+                 data-title="Slower transport"
+                 data-t="1.50"
+                 data-a="1.00"
+                 data-view-lat=""
+                 data-view-lon=""
+                 data-view-zoom="">
+              <h3 style="margin:0 0 8px 0;">More friction</h3>
+              <div>Higher transport factor</div>
+              
+            </div>
+            
+
+            <div class="step"
+                 data-title="Stronger heritage"
+                 data-t="1.00"
+                 data-a="1.60"
+                 data-view-lat=""
+                 data-view-lon=""
+                 data-view-zoom="">
+              <h3 style="margin:0 0 8px 0;">Historic amenities matter more</h3>
+              <div>Higher aFactor</div>
+              
+            </div>
+            
+
+            <div class="step"
+                 data-title="Weaker heritage"
+                 data-t="1.00"
+                 data-a="0.60"
+                 data-view-lat=""
+                 data-view-lon=""
+                 data-view-zoom="">
+              <h3 style="margin:0 0 8px 0;">Historic amenities matter less</h3>
+              <div>Lower aFactor</div>
+              
+            </div>
+            
+
+      <div style="height:35vh;"></div>
+      <p style="color:#666; font-size:13px;">
+        Add more steps by extending the steps list in Python.
+      </p>
+    </div>
+
+    <div class="sticky">
+      <iframe id="viz" src="yerevan_continuous_two_sliders.html"></iframe>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/scrollama"></script>
+  <script>
+    const iframe = document.getElementById("viz");
+    const steps = Array.from(document.querySelectorAll(".step"));
+    const stepName = document.getElementById("stepName");
+    const progBar = document.getElementById("progBar");
+
+    function sendToViz(msg) {
+      if (!iframe.contentWindow) return;
+      iframe.contentWindow.postMessage(msg, "*");
+    }
+
+    function activateStep(el, idx) {
+      steps.forEach(s => s.classList.remove("is-active"));
+      el.classList.add("is-active");
+
+      const t = parseFloat(el.dataset.t);
+      const a = parseFloat(el.dataset.a);
+
+      const lat = parseFloat(el.dataset.viewLat);
+      const lon = parseFloat(el.dataset.viewLon);
+      const zoom = parseFloat(el.dataset.viewZoom);
+
+      const title = el.dataset.title || `Step ${idx + 1}`;
+      stepName.textContent = title;
+
+      if (isFinite(t) && isFinite(a)) {
+        sendToViz({ type: "setSliders", t, a });
+      }
+
+      if (isFinite(lat) && isFinite(lon) && isFinite(zoom)) {
+        sendToViz({ type: "setView", lat, lon, zoom });
+      }
+
+      const pct = steps.length <= 1 ? 100 : (idx / (steps.length - 1)) * 100;
+      progBar.style.width = `${pct.toFixed(1)}%`;
+    }
+
+    const scroller = scrollama();
+    scroller
+      .setup({
+        step: ".step",
+        offset: 0.62
+      })
+      .onStepEnter(({
+        element, index
+      }) => activateStep(element, index));
+
+    window.addEventListener("resize", scroller.resize);
+
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "vizReady") {
+        activateStep(steps[0], 0);
+      }
+    });
+
+    setTimeout(() => activateStep(steps[0], 0), 600);
+  </script>
+</body>
+</html>
