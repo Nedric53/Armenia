@@ -447,8 +447,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
     function setMapView(lat, lon, zoom) {
       if (typeof lat === "number" && typeof lon === "number" && typeof zoom === "number") {
-        map.setView([lat, lon], zoom, { animate: true });
+        try {
+          map.setView([lat, lon], zoom, { animate: true });
+        } catch (e) {}
       }
+    }
+
+    function invalidateMapSize() {
+      try {
+        setTimeout(() => map.invalidateSize(), 0);
+      } catch (e) {}
     }
 
     window.addEventListener("message", (event) => {
@@ -457,6 +465,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
       if (msg.type === "setSliders") setSliders(msg.t, msg.a);
       if (msg.type === "setView") setMapView(msg.lat, msg.lon, msg.zoom);
+
+      // NEW: lets the landing page ask Leaflet to redraw after iframe resize
+      if (msg.type === "invalidateSize") invalidateMapSize();
     });
 
     try {
