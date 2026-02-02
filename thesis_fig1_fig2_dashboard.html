@@ -1,0 +1,420 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Interactive thesis figures (layout, Fig 1, Fig 2-3)</title>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 18px; }
+    h2 { margin: 0 0 10px 0; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
+    .row { display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center; margin: 10px 0; }
+    input[type="range"] { width: 100%; }
+    .small { color: #555; font-size: 12px; line-height: 1.25; }
+    .kvs { font-size: 13px; line-height: 1.35; }
+    .kvs b { font-weight: 650; }
+    .plots { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .plot { height: 320px; }
+    .plotTall { height: 380px; }
+    .pill { display:inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; margin-left: 6px; }
+    ul { margin: 8px 0 0 18px; padding: 0; }
+  </style>
+</head>
+<body>
+  <h2>Theoretical modelling</h2>
+
+  <div class="grid">
+    <div class="card">
+      <div class="small">
+        What you are controlling:
+        <ul>
+          <li><b>t</b> is how expensive distance is (transport or commuting cost). Higher t means distance hurts more.</li>
+          <li><b>g</b> is where the historic center sits (an attractive landmark location).</li>
+          <li><b>e</b> is how strongly the historic center “pulls” economic activity.</li>
+          <li><b>N</b> controls the balance of land use in this setup and ends up pinning the width of the business area.</li>
+        </ul>
+      </div>
+
+      <div class="row">
+        <label for="N">N</label>
+        <div><span id="Nval"></span></div>
+        <input id="N" type="range" min="0.20" max="1.90" step="0.05" value="1.40"/>
+      </div>
+
+      <div class="row">
+        <label for="e">e</label>
+        <div><span id="eval"></span></div>
+        <input id="e" type="range" min="0.01" max="1.00" step="0.01" value="0.10"/>
+      </div>
+
+      <div class="row">
+        <label for="g">g</label>
+        <div><span id="gval"></span></div>
+        <input id="g" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
+      </div>
+
+      <div class="row">
+        <label for="t">t</label>
+        <div><span id="tval"></span></div>
+        <input id="t" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
+      </div>
+
+      <hr/>
+
+      <div class="small">
+        Figure 1 plot range (how far we sweep g):
+      </div>
+      <div class="row">
+        <label for="gmax">g max</label>
+        <div><span id="gmaxval"></span></div>
+        <input id="gmax" type="range" min="0.20" max="1.00" step="0.05" value="1.00"/>
+      </div>
+
+      <hr/>
+
+      <div class="small">
+        Figure 2–3 plot range (how far we sweep t):
+      </div>
+      <div class="row">
+        <label for="tmin">t min</label>
+        <div><span id="tminval"></span></div>
+        <input id="tmin" type="range" min="0.00" max="0.80" step="0.01" value="0.01"/>
+      </div>
+      <div class="row">
+        <label for="tmax">t max</label>
+        <div><span id="tmaxval"></span></div>
+        <input id="tmax" type="range" min="0.05" max="1.50" step="0.01" value="0.50"/>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="kvs">
+          <div><b>Interpretation at current slider values</b></div>
+          <div style="margin-top:6px;">
+            <b>Business area</b> (thick segment) runs from:
+            <div>Left edge: <span id="q"></span></div>
+            <div>Right edge: <span id="p"></span></div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <b>Historic center</b> (x marker): <span id="gOut"></span>
+          </div>
+          <div>
+            <b>Economic center</b> (circle marker): <span id="muOut"></span>
+          </div>
+
+          <div style="margin-top:8px;">
+            <b>Which situation are we in?</b> <span id="caseName"></span>
+            <div class="small">
+              This label only tells you whether the historic center sits inside the business area,
+              or outside it to the left or right.
+            </div>
+          </div>
+
+          <div style="margin-top:8px;" class="small">
+            Tip: Try increasing <b>t</b> while keeping <b>g</b> fixed.
+            When distance gets more painful, the business area and economic center often move in a way that reduces
+            the need for long travel across the city.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="plots">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div><b>City layout</b> </div>
+        </div>
+        <div class="small">
+          Thick segment: business area. x: historic center g. circle: economic center μ.
+        </div>
+        <div id="plot_layout" class="plot"></div>
+      </div>
+
+      <div class="card">
+        <div><b>Figure 1</b>: how the business area changes as g moves</div>
+        <div class="small">
+          Horizontal axis is g (where the historic center is). Vertical axis is location on the city line.
+          The shaded band between q(g) and p(g) is the business area.
+        </div>
+        <div id="plot_fig1" class="plotTall"></div>
+      </div>
+
+      <div class="card">
+        <div><b>Figure 2</b>: how the business area changes as t moves</div>
+        <div class="small">
+          Vertical axis is t (transport cost). Horizontal axis is location.
+          The shaded band between q(t) and p(t) is the business area.
+        </div>
+        <div id="plot_fig2" class="plotTall"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const EPS = 1e-9;
+
+  function clip(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+  function fmt(x) {
+    if (!isFinite(x)) return "nan";
+    const ax = Math.abs(x);
+    if (ax >= 10) return x.toFixed(3);
+    return x.toFixed(4);
+  }
+
+  /*
+    Under the hood, the model has closed-form expressions for three situations:
+
+    A: historic center is inside the business area
+    B: historic center is to the right of the business area
+    C: historic center is to the left of the business area
+
+    We compute all three candidates and pick the one that best satisfies its own “story”.
+    You do not see formulas on screen, but the plots are produced from these rules.
+  */
+  function solveBounds(N, t, e, g) {
+    if (!(N > 0 && N < 2)) return { ok:false, reason:"Need 0 < N < 2" };
+    if (!(e > 0)) return { ok:false, reason:"Need e > 0" };
+    if (!(t >= 0)) return { ok:false, reason:"Need t >= 0" };
+
+    const M = 2 - N;
+    const theta = t / e;
+
+    function inCity(q, p) {
+      return (q < p) && (q >= -1 - 1e-6) && (p <= 1 + 1e-6);
+    }
+
+    // Candidate B: historic center is to the right (p <= g)
+    let muB = NaN, pB = NaN, qB = NaN;
+    if (theta > EPS) {
+      muB = -M * N / (4 * theta);
+      pB = muB + M / 2;
+      qB = muB - M / 2;
+    }
+
+    // Candidate C: historic center is to the left (g <= q)
+    let muC = NaN, pC = NaN, qC = NaN;
+    if (theta > EPS) {
+      muC =  M * N / (4 * theta);
+      pC = muC + M / 2;
+      qC = muC - M / 2;
+    }
+
+    // Candidate A: historic center is inside (q <= g <= p)
+    let muA = NaN, pA = NaN, qA = NaN;
+    const denom = (N - 2 * theta);
+    if (Math.abs(denom) > EPS) {
+      muA = N * g / denom;
+      pA = muA + M / 2;
+      qA = muA - M / 2;
+    }
+
+    function scoreCase(name, q, p, mu) {
+      if (!isFinite(q) || !isFinite(p) || !isFinite(mu)) return null;
+      let score = 0.0;
+
+      if (!inCity(q, p)) {
+        score += 10.0 * (Math.max(0.0, (-1 - q)) + Math.max(0.0, (p - 1)));
+      }
+      if (name === "A") {
+        score += Math.max(0.0, q - g) + Math.max(0.0, g - p);
+      } else if (name === "B") {
+        score += Math.max(0.0, p - g);
+      } else if (name === "C") {
+        score += Math.max(0.0, g - q);
+      }
+      return score;
+    }
+
+    const candidates = [];
+    const sA = scoreCase("A", qA, pA, muA);
+    if (sA !== null) candidates.push([sA, "Historic center is inside the business area", qA, pA, muA]);
+    const sB = scoreCase("B", qB, pB, muB);
+    if (sB !== null) candidates.push([sB, "Historic center is to the right of the business area", qB, pB, muB]);
+    const sC = scoreCase("C", qC, pC, muC);
+    if (sC !== null) candidates.push([sC, "Historic center is to the left of the business area", qC, pC, muC]);
+
+    if (candidates.length === 0) return { ok:false, reason:"No valid case found" };
+
+    candidates.sort((a,b) => a[0] - b[0]);
+    const best = candidates[0];
+
+    return {
+      ok: true,
+      N, M, t, e, g,
+      caseText: best[1],
+      q: best[2],
+      p: best[3],
+      mu: best[4]
+    };
+  }
+
+  function getParams() {
+    const N = parseFloat(document.getElementById("N").value);
+    const e = parseFloat(document.getElementById("e").value);
+    const g = parseFloat(document.getElementById("g").value);
+    const t = parseFloat(document.getElementById("t").value);
+    const gmax = parseFloat(document.getElementById("gmax").value);
+    const tmin = parseFloat(document.getElementById("tmin").value);
+    const tmax = parseFloat(document.getElementById("tmax").value);
+    return {N,e,g,t,gmax,tmin,tmax};
+  }
+
+  function syncLabels(p) {
+    document.getElementById("Nval").textContent = fmt(p.N);
+    document.getElementById("eval").textContent = fmt(p.e);
+    document.getElementById("gval").textContent = fmt(p.g);
+    document.getElementById("tval").textContent = fmt(p.t);
+    document.getElementById("gmaxval").textContent = fmt(p.gmax);
+    document.getElementById("tminval").textContent = fmt(p.tmin);
+    document.getElementById("tmaxval").textContent = fmt(p.tmax);
+  }
+
+  function updateText(sol) {
+    if (!sol.ok) {
+      document.getElementById("q").textContent = "nan";
+      document.getElementById("p").textContent = "nan";
+      document.getElementById("gOut").textContent = "nan";
+      document.getElementById("muOut").textContent = "nan";
+      document.getElementById("caseName").textContent = sol.reason;
+      return;
+    }
+    document.getElementById("q").textContent = fmt(sol.q);
+    document.getElementById("p").textContent = fmt(sol.p);
+    document.getElementById("gOut").textContent = fmt(sol.g);
+    document.getElementById("muOut").textContent = fmt(sol.mu);
+    document.getElementById("caseName").textContent = sol.caseText;
+  }
+
+  // Plot 0: city layout with business segment + markers for g and mu
+  function drawLayout(sol) {
+    let q = NaN, p = NaN, mu = NaN, g = NaN;
+    if (sol.ok) { q = sol.q; p = sol.p; mu = sol.mu; g = sol.g; }
+
+    const qd = clip(q, -1, 1);
+    const pd = clip(p, -1, 1);
+
+    const data = [
+      { x: [-1, 1], y: [0, 0], mode: "lines", line: { width: 6 }, name: "city" },
+      { x: sol.ok ? [qd, pd] : [], y: sol.ok ? [0, 0] : [], mode: "lines",
+        line: { width: 18 }, opacity: 0.25, name: "business area" },
+      { x: sol.ok ? [g] : [], y: sol.ok ? [0] : [], mode: "markers+text",
+        marker: { size: 12, symbol: "x" }, text: ["g"], textposition: "top center", name: "historic center" },
+      { x: sol.ok ? [mu] : [], y: sol.ok ? [0] : [], mode: "markers+text",
+        marker: { size: 10, symbol: "circle" }, text: ["μ"], textposition: "top center", name: "economic center" },
+      { x: sol.ok ? [q, p] : [], y: sol.ok ? [0, 0] : [], mode: "markers+text",
+        marker: { size: 14, symbol: "line-ns-open" }, text: ["q", "p"], textposition: "bottom center", name: "edges" }
+    ];
+
+    const layout = {
+      margin: { l: 40, r: 20, t: 10, b: 30 },
+      xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
+      yaxis: { range: [-0.8, 0.8], visible: false },
+      showlegend: false
+    };
+
+    Plotly.react("plot_layout", data, layout, {displayModeBar: false});
+  }
+
+  // Figure 1: sweep g and plot q(g), p(g), plus 45 degree line g
+  function drawFig1(p) {
+    const N = p.N, e = p.e, t = p.t;
+    const gmax = p.gmax;
+    const n = 360;
+
+    const gs = [];
+    const qs = [];
+    const ps = [];
+
+    for (let i=0; i<n; i++) {
+      const g = gmax * (i/(n-1));
+      const sol = solveBounds(N, t, e, g);
+      gs.push(g);
+      qs.push(sol.ok ? sol.q : NaN);
+      ps.push(sol.ok ? sol.p : NaN);
+    }
+
+    const data = [
+      { x: gs, y: gs, mode: "lines", name: "g (reference line)" },
+      { x: gs, y: ps, mode: "lines", name: "right edge of business area" },
+      { x: gs, y: qs, mode: "lines", name: "left edge of business area" },
+      { x: gs, y: qs, mode: "lines", line: { width: 0 }, showlegend: false },
+      { x: gs, y: ps, mode: "lines", fill: "tonexty", opacity: 0.2, name: "business area" }
+    ];
+
+    const layout = {
+      margin: { l: 60, r: 20, t: 10, b: 50 },
+      xaxis: { range: [0, gmax], title: "g (where the historic center is)" },
+      yaxis: { range: [-1.05, 1.05], title: "location on the city line" },
+      legend: { orientation: "h", y: -0.25 }
+    };
+
+    Plotly.react("plot_fig1", data, layout, {displayModeBar: false});
+  }
+
+  // Figure 2-3 style: sweep t and plot q(t), p(t), with vertical line at current g
+  function drawFig2(p) {
+    const N = p.N, e = p.e, g = p.g;
+    let tmin = p.tmin, tmax = p.tmax;
+    if (!(tmax > tmin)) tmax = tmin + 0.01;
+
+    const n = 320;
+    const ts = [];
+    const qs = [];
+    const ps = [];
+
+    for (let i=0; i<n; i++) {
+      const t = tmin + (tmax - tmin) * (i/(n-1));
+      const sol = solveBounds(N, t, e, g);
+      ts.push(t);
+      qs.push(sol.ok ? sol.q : NaN);
+      ps.push(sol.ok ? sol.p : NaN);
+    }
+
+    // marker at current t
+    const solNow = solveBounds(N, p.t, e, g);
+    const qNow = solNow.ok ? solNow.q : NaN;
+    const pNow = solNow.ok ? solNow.p : NaN;
+
+    const data = [
+      { x: qs, y: ts, mode: "lines", name: "left edge of business area" },
+      { x: ps, y: ts, mode: "lines", name: "right edge of business area" },
+      { x: [g, g], y: [tmin, tmax], mode: "lines", line: { dash: "dash" }, name: "g (fixed)" },
+      { x: [qNow, pNow], y: [p.t, p.t], mode: "markers", marker: { size: 9 }, name: "current t points" },
+      { x: qs, y: ts, mode: "lines", line: { width: 0 }, showlegend: false },
+      { x: ps, y: ts, mode: "lines", fill: "tonextx", opacity: 0.2, name: "business area" }
+    ];
+
+    const layout = {
+      margin: { l: 60, r: 20, t: 10, b: 50 },
+      xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
+      yaxis: { range: [tmin, tmax], title: "t (transport cost)" },
+      legend: { orientation: "h", y: -0.25 }
+    };
+
+    Plotly.react("plot_fig2", data, layout, {displayModeBar: false});
+  }
+
+  function updateAll() {
+    const p = getParams();
+    syncLabels(p);
+
+    const sol = solveBounds(p.N, p.t, p.e, p.g);
+    updateText(sol);
+
+    drawLayout(sol);
+    drawFig1(p);
+    drawFig2(p);
+  }
+
+  const ids = ["N","e","g","t","gmax","tmin","tmax"];
+  for (const id of ids) document.getElementById(id).addEventListener("input", updateAll);
+
+  updateAll();
+</script>
+
+</body>
+</html>
