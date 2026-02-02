@@ -22,21 +22,21 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: clamp(140px, 13vw, 190px) 1fr clamp(140px, 13vw, 190px);
+      grid-template-columns: clamp(160px, 16vw, 210px) 1fr clamp(160px, 16vw, 210px);
       gap: 10px;
       padding: 10px;
       box-sizing: border-box;
       background: #fff;
     }
 
-    /* Side panels: smaller */
+    /* Panels: smaller + do not stretch full height */
     .panel {
       align-self: start;
       border: 1px solid rgba(0,0,0,0.14);
       border-radius: 16px;
       background: #fff;
       box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-      padding: 10px;
+      padding: 10px 10px 10px 10px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -69,57 +69,25 @@
       opacity: 0.7;
     }
 
-    /* Vertical slider row */
-    .panelSliderWrap{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .vSliderValueCol{
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      min-width: 52px;
-    }
-
     .panelValue {
       font-size: 13px;
       font-weight: 900;
+      min-width: 46px;
       text-align: right;
     }
 
-    .vSlider{
-      -webkit-appearance: slider-vertical;
-      appearance: slider-vertical;
-      writing-mode: bt-lr;   /* Firefox */
-      width: 18px;           /* thickness */
-      height: 140px;         /* length */
-      padding: 0;
-      margin: 0;
-    }
-
-    /* Fallback for browsers that ignore slider-vertical */
-    @supports not (-webkit-appearance: slider-vertical) {
-      .vSlider{
-        -webkit-appearance: none;
-        appearance: none;
-        width: 140px;
-        height: 18px;
-        transform: rotate(-90deg);
-      }
-      .panelSliderWrap{ gap: 16px; }
+    input[type="range"] {
+      width: 100%;
+      margin: 4px 0 0 0;
     }
 
     .panelFoot {
       font-size: 11px;
       opacity: 0.7;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
-    /* Big map panel */
+    /* Map: big, fills height */
     .mapPanel {
       border: 1px solid rgba(0,0,0,0.14);
       border-radius: 16px;
@@ -182,7 +150,7 @@
       white-space: nowrap;
     }
 
-    /* Stack only on very small screens */
+    /* Only stack on very small widths */
     @media (max-width: 560px) {
       #topRow {
         grid-template-columns: 1fr;
@@ -190,7 +158,6 @@
       }
       .panel { align-self: stretch; }
       .mapPanel { min-height: 45vh; }
-      .vSlider { height: 120px; }
     }
   </style>
 
@@ -203,18 +170,11 @@
       <div class="panel" id="leftPanel">
         <div class="panelKicker">Transport</div>
         <div class="panelTitle">Transport factor</div>
-
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
+          <div class="panelValue" id="tVal"></div>
         </div>
-
-        <div class="panelSliderWrap">
-          <input id="tSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
-          <div class="vSliderValueCol">
-            <div class="panelValue" id="tVal"></div>
-          </div>
-        </div>
-
+        <input id="tSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
         <div class="panelFoot">Lower means faster</div>
       </div>
 
@@ -225,18 +185,11 @@
       <div class="panel" id="rightPanel">
         <div class="panelKicker">Amenities</div>
         <div class="panelTitle">Historic amenity strength</div>
-
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
+          <div class="panelValue" id="aVal"></div>
         </div>
-
-        <div class="panelSliderWrap">
-          <input id="aSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
-          <div class="vSliderValueCol">
-            <div class="panelValue" id="aVal"></div>
-          </div>
-        </div>
-
+        <input id="aSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
         <div class="panelFoot">Higher means stronger</div>
       </div>
 
