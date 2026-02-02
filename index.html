@@ -241,7 +241,7 @@
     }
   
 
-/* ---- injected: model focus zoom (landing page) ---- */
+/* ---- injected: model focus zoom + pinned progress bar ---- */
 #model .modelGrid{
   display: flex;
   gap: 18px;
@@ -260,6 +260,7 @@
   transition: flex-basis 650ms cubic-bezier(.2,.8,.2,1), box-shadow 650ms cubic-bezier(.2,.8,.2,1), transform 650ms cubic-bezier(.2,.8,.2,1);
 }
 
+/* zoom-in state */
 body.modelFocus #model .container{
   max-width: 96vw;
   transition: max-width 650ms cubic-bezier(.2,.8,.2,1);
@@ -276,12 +277,31 @@ body.modelFocus #model .stickyViz{
   transform: translateY(-2px);
 }
 
-/* mobile: keep it simple */
+/* pin the progress bar while the model section is active */
+body.modelFocus #model .modelMiniBar{
+  position: fixed;
+  top: 74px;                     /* matches your .stickyViz top */
+  left: 0;
+  right: 0;
+  z-index: 80;
+  background: rgba(250,250,250,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15,15,16,.12);
+  padding: 10px 22px 16px 22px;
+}
+
+/* reserve space so content doesn't jump under the fixed bar */
+body.modelFocus #model .modelHeader{
+  padding-bottom: 92px;
+}
+
+/* mobile: keep it readable */
 @media (max-width: 980px){
   #model .modelGrid{ flex-direction: column; }
   #model .stepsCol{ flex-basis: auto; padding-right: 0; }
   body.modelFocus #model .stepsCol{ flex-basis: auto; }
   body.modelFocus #model .stickyViz{ flex-basis: auto; transform: none; }
+  body.modelFocus #model .modelMiniBar{ top: 66px; }
 }
 /* ---- end injected block ---- */
 
@@ -607,14 +627,14 @@ body.modelFocus #model .stickyViz{
     }, 700);
   
 
-    // ---- injected: zoom in/out when model section is active ----
+    // ---- injected: zoom in/out and keep progress visible while model is active ----
     const modelSection = document.getElementById("model");
-    const afterModel = document.getElementById("gallery2"); // section after model
+    const afterModel = document.getElementById("gallery2");
 
     function setModelFocus(on) {
       document.body.classList.toggle("modelFocus", !!on);
 
-      // Leaflet in iframe usually needs a size refresh after layout transitions
+      // refresh Leaflet sizing in the iframe after layout changes
       sendToViz({ type: "invalidateSize" });
       setTimeout(() => sendToViz({ type: "invalidateSize" }), 350);
       setTimeout(() => sendToViz({ type: "invalidateSize" }), 750);
@@ -631,7 +651,6 @@ body.modelFocus #model .stickyViz{
       modelObs.observe(modelSection);
     }
 
-    // strong zoom-out once the next section is reached
     if (afterModel) {
       const endObs = new IntersectionObserver((entries) => {
         for (const e of entries) {
