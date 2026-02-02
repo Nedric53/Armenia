@@ -22,27 +22,29 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: minmax(240px, 320px) 1fr minmax(240px, 320px);
-      gap: 12px;
-      padding: 12px;
+      grid-template-columns: clamp(140px, 13vw, 190px) 1fr clamp(140px, 13vw, 190px);
+      gap: 10px;
+      padding: 10px;
       box-sizing: border-box;
       background: #fff;
     }
 
+    /* Side panels: smaller */
     .panel {
+      align-self: start;
       border: 1px solid rgba(0,0,0,0.14);
-      border-radius: 18px;
+      border-radius: 16px;
       background: #fff;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.10);
-      padding: 14px 14px 12px 14px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+      padding: 10px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .panelKicker {
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       opacity: 0.65;
@@ -50,7 +52,7 @@
 
     .panelTitle {
       font-weight: 800;
-      font-size: 16px;
+      font-size: 13px;
       margin-top: 2px;
     }
 
@@ -58,38 +60,71 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      gap: 10px;
+      gap: 8px;
       margin-top: 2px;
     }
 
     .panelRange {
-      font-size: 12px;
+      font-size: 11px;
       opacity: 0.7;
     }
 
-    .panelValue {
-      font-size: 16px;
-      font-weight: 900;
-      min-width: 52px;
-      text-align: right;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      margin: 6px 0 0 0;
-    }
-
-    .panelFoot {
-      font-size: 12px;
-      opacity: 0.7;
+    /* Vertical slider row */
+    .panelSliderWrap{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       margin-top: 4px;
     }
 
+    .vSliderValueCol{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 52px;
+    }
+
+    .panelValue {
+      font-size: 13px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .vSlider{
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: bt-lr;   /* Firefox */
+      width: 18px;           /* thickness */
+      height: 140px;         /* length */
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Fallback for browsers that ignore slider-vertical */
+    @supports not (-webkit-appearance: slider-vertical) {
+      .vSlider{
+        -webkit-appearance: none;
+        appearance: none;
+        width: 140px;
+        height: 18px;
+        transform: rotate(-90deg);
+      }
+      .panelSliderWrap{ gap: 16px; }
+    }
+
+    .panelFoot {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+
+    /* Big map panel */
     .mapPanel {
       border: 1px solid rgba(0,0,0,0.14);
-      border-radius: 18px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.10);
       background: #f3f3f3;
       min-height: 0;
     }
@@ -99,38 +134,63 @@
       height: 100%;
     }
 
+    /* Bottom bar */
     #bottomBar {
       border-top: 1px solid rgba(0,0,0,0.12);
-      padding: 10px 14px;
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       gap: 12px;
       background: #fff;
       box-sizing: border-box;
     }
 
+    .barLeft {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
     .barLabel {
-      font-size: 12px;
-      letter-spacing: 0.06em;
+      font-size: 11px;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
       opacity: 0.7;
       white-space: nowrap;
     }
 
+    .barBtn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: rgba(255,255,255,0.9);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .barBtn:active {
+      transform: translateY(1px);
+    }
+
     .barValue {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       white-space: nowrap;
     }
 
-    /* Responsive: stack panels above map on small screens */
-    @media (max-width: 900px) {
+    /* Stack only on very small screens */
+    @media (max-width: 560px) {
       #topRow {
         grid-template-columns: 1fr;
         grid-template-rows: auto minmax(240px, 1fr) auto;
       }
+      .panel { align-self: stretch; }
       .mapPanel { min-height: 45vh; }
+      .vSlider { height: 120px; }
     }
   </style>
 
@@ -143,11 +203,18 @@
       <div class="panel" id="leftPanel">
         <div class="panelKicker">Transport</div>
         <div class="panelTitle">Transport factor</div>
+
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
-          <div class="panelValue" id="tVal"></div>
         </div>
-        <input id="tSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+
+        <div class="panelSliderWrap">
+          <input id="tSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+          <div class="vSliderValueCol">
+            <div class="panelValue" id="tVal"></div>
+          </div>
+        </div>
+
         <div class="panelFoot">Lower means faster</div>
       </div>
 
@@ -158,18 +225,28 @@
       <div class="panel" id="rightPanel">
         <div class="panelKicker">Amenities</div>
         <div class="panelTitle">Historic amenity strength</div>
+
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
-          <div class="panelValue" id="aVal"></div>
         </div>
-        <input id="aSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+
+        <div class="panelSliderWrap">
+          <input id="aSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+          <div class="vSliderValueCol">
+            <div class="panelValue" id="aVal"></div>
+          </div>
+        </div>
+
         <div class="panelFoot">Higher means stronger</div>
       </div>
 
     </div>
 
     <div id="bottomBar">
-      <div class="barLabel">Distance</div>
+      <div class="barLeft">
+        <div class="barLabel">Distance</div>
+        <button id="centerBtn" class="barBtn" type="button">Center map</button>
+      </div>
       <div class="barValue" id="muInfo"></div>
     </div>
   </div>
@@ -300,7 +377,14 @@
 
     // Map init
     const map = L.map('map').setView([g.lat, g.lon], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    
+    const centerBtn = document.getElementById('centerBtn');
+    if (centerBtn) {
+      centerBtn.addEventListener('click', () => {
+        map.setView([g.lat, g.lon], 13, { animate: true });
+      });
+    }
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
