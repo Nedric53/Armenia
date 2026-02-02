@@ -365,7 +365,7 @@
     const centerBtn = document.getElementById('centerBtn');
     if (centerBtn) {
       centerBtn.addEventListener('click', () => {
-        map.setView([g.lat, g.lon], 13, { animate: true });
+        map.setView([g.lat, g.lon], 12.0, { animate: true });
       });
     }
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
