@@ -22,26 +22,27 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: clamp(160px, 16vw, 210px) 1fr clamp(160px, 16vw, 210px);
+      grid-template-columns: clamp(140px, 13vw, 190px) 1fr clamp(140px, 13vw, 190px);
       gap: 10px;
       padding: 10px;
       box-sizing: border-box;
       background: #fff;
     }
 
-    /* Panels: smaller + do not stretch full height */
     .panel {
-      align-self: start;
+      align-self: stretch;
+      height: 100%;
       border: 1px solid rgba(0,0,0,0.14);
       border-radius: 16px;
       background: #fff;
       box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-      padding: 10px 10px 10px 10px;
+      padding: 10px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+    
 
     .panelKicker {
       font-size: 10px;
@@ -69,25 +70,44 @@
       opacity: 0.7;
     }
 
+    .panelSliderWrap{
+      flex: 1;                       /* takes remaining height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 6px;
+      min-height: 0;
+    }
+    
+    .vSlider{
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      writing-mode: bt-lr;
+      width: 18px;                   /* thickness */
+      height: 100%;                  /* fill the available height */
+      max-height: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .panelFoot { margin-top: 6px; }
+    .vSliderValueCol { align-self: center; }
+    
+
     .panelValue {
       font-size: 13px;
       font-weight: 900;
-      min-width: 46px;
       text-align: right;
     }
 
-    input[type="range"] {
-      width: 100%;
-      margin: 4px 0 0 0;
-    }
 
     .panelFoot {
       font-size: 11px;
       opacity: 0.7;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
-    /* Map: big, fills height */
     .mapPanel {
       border: 1px solid rgba(0,0,0,0.14);
       border-radius: 16px;
@@ -102,7 +122,6 @@
       height: 100%;
     }
 
-    /* Bottom bar */
     #bottomBar {
       border-top: 1px solid rgba(0,0,0,0.12);
       padding: 10px 12px;
@@ -134,15 +153,13 @@
       padding: 0 10px;
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,0.18);
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.92);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .barBtn:active {
-      transform: translateY(1px);
-    }
+    .barBtn:active { transform: translateY(1px); }
 
     .barValue {
       font-size: 16px;
@@ -150,7 +167,6 @@
       white-space: nowrap;
     }
 
-    /* Only stack on very small widths */
     @media (max-width: 560px) {
       #topRow {
         grid-template-columns: 1fr;
@@ -158,6 +174,7 @@
       }
       .panel { align-self: stretch; }
       .mapPanel { min-height: 45vh; }
+      .vSlider { height: 120px; }
     }
   </style>
 
@@ -170,11 +187,18 @@
       <div class="panel" id="leftPanel">
         <div class="panelKicker">Transport</div>
         <div class="panelTitle">Transport factor</div>
+
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
-          <div class="panelValue" id="tVal"></div>
         </div>
-        <input id="tSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+
+        <div class="panelSliderWrap">
+          <input id="tSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+          <div class="vSliderValueCol">
+            <div class="panelValue" id="tVal"></div>
+          </div>
+        </div>
+
         <div class="panelFoot">Lower means faster</div>
       </div>
 
@@ -185,11 +209,18 @@
       <div class="panel" id="rightPanel">
         <div class="panelKicker">Amenities</div>
         <div class="panelTitle">Historic amenity strength</div>
+
         <div class="panelMetaRow">
           <div class="panelRange">0.1 .. 2.0</div>
-          <div class="panelValue" id="aVal"></div>
         </div>
-        <input id="aSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+
+        <div class="panelSliderWrap">
+          <input id="aSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00">
+          <div class="vSliderValueCol">
+            <div class="panelValue" id="aVal"></div>
+          </div>
+        </div>
+
         <div class="panelFoot">Higher means stronger</div>
       </div>
 
