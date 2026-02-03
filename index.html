@@ -197,7 +197,11 @@
     }
     .progress > div{ height: 100%; width: 0%; background: #111; }
 
-    .step{ margin-bottom: 14px; }
+    /* Give scrollama more room, helps stability */
+    .step{ padding: 24vh 0; }
+    .step:first-child{ padding-top: 14vh; }
+    .step:last-child{ padding-bottom: 14vh; }
+
     .stepCard{
       background: #fff;
       border: 1px solid var(--line);
@@ -238,6 +242,7 @@
       .imgGrid.cols3{ grid-template-columns: 1fr; }
       .imgGrid.cols2{ grid-template-columns: 1fr; }
       .explainGrid{ grid-template-columns: 1fr; }
+      .step{ padding: 16vh 0; }
     }
   
 
@@ -280,7 +285,7 @@ body.modelFocus #model .stickyViz{
 /* pin the progress bar while the model section is active */
 body.modelFocus #model .modelMiniBar{
   position: fixed;
-  top: 74px;                     /* matches your .stickyViz top */
+  top: 74px;
   left: 0;
   right: 0;
   z-index: 80;
@@ -295,7 +300,7 @@ body.modelFocus #model .modelHeader{
   padding-bottom: 92px;
 }
 
-/* mobile: keep it readable */
+/* mobile */
 @media (max-width: 980px){
   #model .modelGrid{ flex-direction: column; }
   #model .stepsCol{ flex-basis: auto; padding-right: 0; }
@@ -562,7 +567,6 @@ body.modelFocus #model .modelHeader{
         </div>
       </div>
     
-
     </div>
   </section>
 
@@ -578,13 +582,77 @@ body.modelFocus #model .modelHeader{
     const steps = Array.from(document.querySelectorAll(".step"));
     const stepName = document.getElementById("stepName");
     const progBar = document.getElementById("progBar");
+    const modelSection = document.getElementById("model");
 
-    function sendToViz(msg) {
+    // -----------------------
+    // Robust postMessage state + replay
+    // -----------------------
+    let vizIsReady = false;
+
+    // store latest desired state so we can replay it any time
+    const pending = {
+      sliders: null,
+      view: null,
+      invalidate: false
+    };
+
+    function _postToViz(msg) {
       if (!iframe || !iframe.contentWindow) return;
       iframe.contentWindow.postMessage(msg, "*");
     }
 
+    function _remember(msg) {
+      if (!msg || typeof msg !== "object") return;
+      if (msg.type === "setSliders") pending.sliders = msg;
+      if (msg.type === "setView") pending.view = msg;
+      if (msg.type === "invalidateSize") pending.invalidate = true;
+    }
+
+    function replayPending() {
+      if (!iframe || !iframe.contentWindow) return;
+
+      // send a ping to encourage the child to respond with vizReady
+      _postToViz({ type: "ping" });
+
+      if (pending.sliders) _postToViz(pending.sliders);
+      if (pending.view) _postToViz(pending.view);
+      if (pending.invalidate) _postToViz({ type: "invalidateSize" });
+    }
+
+    function sendToViz(msg) {
+      if (!iframe || !iframe.contentWindow) return;
+      _remember(msg);
+
+      // even if not ready, try to send (plus we replay later)
+      _postToViz(msg);
+
+      if (vizIsReady) return;
+      // keep poking until we get vizReady, but not too aggressively
+      // (replayPending is called by load + scroll focus + vizReady)
+    }
+
+    // iframe load fallback: if parent missed vizReady, we still start working
+    if (iframe) {
+      iframe.addEventListener("load", () => {
+        // do not force vizIsReady true, but do a replay and ping
+        replayPending();
+        sendToViz({ type: "invalidateSize" });
+        setTimeout(() => sendToViz({ type: "invalidateSize" }), 250);
+      });
+    }
+
+    // -----------------------
+    // Activate a step
+    // -----------------------
+    let lastIdx = -1;
+
     function activateStep(el, idx) {
+      if (!el) return;
+
+      // avoid spam if scrollama fires duplicates
+      if (idx === lastIdx) return;
+      lastIdx = idx;
+
       steps.forEach(s => s.classList.remove("is-active"));
       el.classList.add("is-active");
 
@@ -596,7 +664,7 @@ body.modelFocus #model .modelHeader{
       const zoom = parseFloat(el.dataset.viewZoom);
 
       const title = el.dataset.title || ("Step " + String(idx + 1));
-      stepName.textContent = title;
+      if (stepName) stepName.textContent = title;
 
       if (isFinite(t) && isFinite(a)) {
         sendToViz({ type: "setSliders", t: t, a: a });
@@ -606,62 +674,105 @@ body.modelFocus #model .modelHeader{
       }
 
       const pct = steps.length <= 1 ? 100 : (idx / (steps.length - 1)) * 100;
-      progBar.style.width = String(pct.toFixed(1)) + "%";
+      if (progBar) progBar.style.width = String(pct.toFixed(1)) + "%";
     }
 
+    // -----------------------
+    // Model focus: stable, section based (not per step)
+    // -----------------------
+    let modelFocusOn = false;
+
+    function setModelFocus(on) {
+      const next = !!on;
+      if (modelFocusOn === next) return;
+      modelFocusOn = next;
+
+      document.body.classList.toggle("modelFocus", modelFocusOn);
+
+      // Layout changed, ask Leaflet to resize
+      sendToViz({ type: "invalidateSize" });
+      setTimeout(() => sendToViz({ type: "invalidateSize" }), 250);
+      setTimeout(() => sendToViz({ type: "invalidateSize" }), 650);
+
+      // replay state after focus changes (covers missed messages)
+      replayPending();
+    }
+
+    function computeModelFocus() {
+      if (!modelSection) return;
+      const r = modelSection.getBoundingClientRect();
+      const vh = window.innerHeight || 800;
+
+      // active if section overlaps viewport with a margin
+      const active = (r.bottom > 140) && (r.top < vh - 140);
+      setModelFocus(active);
+    }
+
+    let _focusRAF = 0;
+    function scheduleFocusCheck() {
+      cancelAnimationFrame(_focusRAF);
+      _focusRAF = requestAnimationFrame(computeModelFocus);
+    }
+
+    window.addEventListener("scroll", scheduleFocusCheck, { passive: true });
+    window.addEventListener("resize", scheduleFocusCheck);
+
+    // ResizeObserver: if sticky container changes size, resize map
+    const stickyVizEl = document.querySelector("#model .stickyViz");
+    if (stickyVizEl && "ResizeObserver" in window) {
+      const ro = new ResizeObserver(() => {
+        sendToViz({ type: "invalidateSize" });
+      });
+      ro.observe(stickyVizEl);
+    }
+
+    // -----------------------
+    // Scrollama setup
+    // -----------------------
     const scroller = scrollama();
+
     scroller
       .setup({ step: ".step", offset: 0.62 })
-      .onStepEnter(resp => activateStep(resp.element, resp.index));
+      .onStepEnter((resp) => {
+        // entering any step means model is active
+        setModelFocus(true);
+        activateStep(resp.element, resp.index);
+      })
+      .onStepExit((resp) => {
+        // When scrolling up, ensure previous becomes active (helps fast scroll)
+        if (resp.direction === "up" && resp.index > 0) {
+          const prev = resp.index - 1;
+          activateStep(steps[prev], prev);
+        }
+        // focus off is handled by computeModelFocus(), not per step
+      });
 
-    window.addEventListener("resize", scroller.resize);
+    // Resize: one per frame
+    let _resizeRAF = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(_resizeRAF);
+      _resizeRAF = requestAnimationFrame(() => scroller.resize());
+    });
 
+    // -----------------------
+    // Viz ready handshake
+    // -----------------------
     window.addEventListener("message", (event) => {
       if (event.data && event.data.type === "vizReady") {
-        if (steps.length) activateStep(steps[0], 0);
+        vizIsReady = true;
+        replayPending();
+        sendToViz({ type: "invalidateSize" });
+        setTimeout(() => sendToViz({ type: "invalidateSize" }), 250);
       }
     });
 
+    // Initial
+    scheduleFocusCheck();
     setTimeout(() => {
       if (steps.length) activateStep(steps[0], 0);
-    }, 700);
-  
-
-    // ---- injected: zoom in/out and keep progress visible while model is active ----
-    const modelSection = document.getElementById("model");
-    const afterModel = document.getElementById("gallery2");
-
-    function setModelFocus(on) {
-      document.body.classList.toggle("modelFocus", !!on);
-
-      // refresh Leaflet sizing in the iframe after layout changes
+      replayPending();
       sendToViz({ type: "invalidateSize" });
-      setTimeout(() => sendToViz({ type: "invalidateSize" }), 350);
-      setTimeout(() => sendToViz({ type: "invalidateSize" }), 750);
-    }
-
-    if (modelSection) {
-      const modelObs = new IntersectionObserver((entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setModelFocus(true);
-          else setModelFocus(false);
-        }
-      }, { threshold: 0.25 });
-
-      modelObs.observe(modelSection);
-    }
-
-    if (afterModel) {
-      const endObs = new IntersectionObserver((entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setModelFocus(false);
-        }
-      }, { threshold: 0.15 });
-
-      endObs.observe(afterModel);
-    }
-    // ---- end injected block ----
-
-</script>
+    }, 700);
+  </script>
 </body>
 </html>
