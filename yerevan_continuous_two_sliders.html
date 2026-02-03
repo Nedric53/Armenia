@@ -11,12 +11,7 @@
     html, body { height: 100%; }
     body { margin: 0; font-family: Arial, sans-serif; overflow: hidden; background: #fff; }
 
-    #app {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-    }
+    #app { height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
 
     #topRow {
       flex: 1;
@@ -42,20 +37,9 @@
       flex-direction: column;
       gap: 6px;
     }
-    
 
-    .panelKicker {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.65;
-    }
-
-    .panelTitle {
-      font-weight: 800;
-      font-size: 13px;
-      margin-top: 2px;
-    }
+    .panelKicker { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; }
+    .panelTitle { font-weight: 800; font-size: 13px; margin-top: 2px; }
 
     .panelMetaRow {
       display: flex;
@@ -65,13 +49,10 @@
       margin-top: 2px;
     }
 
-    .panelRange {
-      font-size: 11px;
-      opacity: 0.7;
-    }
+    .panelRange { font-size: 11px; opacity: 0.7; }
 
     .panelSliderWrap{
-      flex: 1;                       /* takes remaining height */
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -79,34 +60,22 @@
       margin-top: 6px;
       min-height: 0;
     }
-    
+
     .vSlider{
       -webkit-appearance: slider-vertical;
       appearance: slider-vertical;
       writing-mode: bt-lr;
-      width: 18px;                   /* thickness */
-      height: 100%;                  /* fill the available height */
+      width: 18px;
+      height: 100%;
       max-height: none;
       padding: 0;
       margin: 0;
     }
 
-    .panelFoot { margin-top: 6px; }
     .vSliderValueCol { align-self: center; }
-    
+    .panelValue { font-size: 13px; font-weight: 900; text-align: right; }
 
-    .panelValue {
-      font-size: 13px;
-      font-weight: 900;
-      text-align: right;
-    }
-
-
-    .panelFoot {
-      font-size: 11px;
-      opacity: 0.7;
-      margin-top: 6px;
-    }
+    .panelFoot { font-size: 11px; opacity: 0.7; margin-top: 6px; }
 
     .mapPanel {
       border: 1px solid rgba(0,0,0,0.14);
@@ -117,10 +86,7 @@
       min-height: 0;
     }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
+    #map { width: 100%; height: 100%; }
 
     #bottomBar {
       border-top: 1px solid rgba(0,0,0,0.12);
@@ -133,20 +99,8 @@
       box-sizing: border-box;
     }
 
-    .barLeft {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .barLabel {
-      font-size: 11px;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      opacity: 0.7;
-      white-space: nowrap;
-    }
+    .barLeft { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .barLabel { font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; opacity: 0.7; white-space: nowrap; }
 
     .barBtn {
       height: 30px;
@@ -161,11 +115,7 @@
 
     .barBtn:active { transform: translateY(1px); }
 
-    .barValue {
-      font-size: 16px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
+    .barValue { font-size: 16px; font-weight: 900; white-space: nowrap; }
 
     @media (max-width: 560px) {
       #topRow {
@@ -434,15 +384,29 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 
     // ---- scrollytelling control hooks (injected) ----
+    function _dispatchInput(el) {
+      try {
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      } catch (e) {}
+    }
+
     function setSliders(tVal, aVal) {
-      const tSlider = document.getElementById('tSlider');
-      const aSlider = document.getElementById('aSlider');
+      const tSlider = document.getElementById("tSlider");
+      const aSlider = document.getElementById("aSlider");
       if (!tSlider || !aSlider) return;
 
       if (typeof tVal === "number" && isFinite(tVal)) tSlider.value = String(tVal);
       if (typeof aVal === "number" && isFinite(aVal)) aSlider.value = String(aVal);
 
-      update();
+      // Prefer triggering the app's existing listeners
+      _dispatchInput(tSlider);
+      _dispatchInput(aSlider);
+
+      // Also call update() if it exists
+      try {
+        if (typeof update === "function") update();
+      } catch (e) {}
     }
 
     function setMapView(lat, lon, zoom) {
@@ -453,9 +417,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       }
     }
 
+    // Debounced invalidate to avoid spamming Leaflet on rapid layout changes
+    let _invT = 0;
     function invalidateMapSize() {
       try {
-        setTimeout(() => map.invalidateSize(), 0);
+        clearTimeout(_invT);
+        _invT = setTimeout(() => map.invalidateSize(), 0);
       } catch (e) {}
     }
 
@@ -465,11 +432,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
       if (msg.type === "setSliders") setSliders(msg.t, msg.a);
       if (msg.type === "setView") setMapView(msg.lat, msg.lon, msg.zoom);
-
-      // NEW: lets the landing page ask Leaflet to redraw after iframe resize
       if (msg.type === "invalidateSize") invalidateMapSize();
+
+      // Parent can ping, child responds ready
+      if (msg.type === "ping") {
+        try { window.parent && window.parent.postMessage({ type: "vizReady" }, "*"); } catch (e) {}
+      }
     });
 
+    // Send ready (may be missed by parent, parent also pings and uses iframe load)
     try {
       window.parent && window.parent.postMessage({ type: "vizReady" }, "*");
     } catch (e) {}
