@@ -1,162 +1,147 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Interactive thesis figures (sectioned)</title>
+  <title>Interactive thesis figures (3-up + compact controls)</title>
+
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 18px; }
-    h2 { margin: 0 0 10px 0; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
-    .section { display: grid; grid-template-columns: 390px 1fr; gap: 14px; align-items: start; }
-    .sectionTitle { font-weight: 700; margin: 0 0 6px 0; }
-    .small { color: #555; font-size: 12px; line-height: 1.25; }
-    .row { display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center; margin: 10px 0; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 12px; }
+    h2 { margin: 0 0 8px 0; font-size: 20px; }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 10px; background: #fff; }
+    .plotTitle { font-weight: 750; margin: 0 0 4px 0; font-size: 14px; }
+    .small { color: #555; font-size: 11px; line-height: 1.25; margin-bottom: 6px; }
+    .pill { display:inline-block; padding: 1px 7px; border: 1px solid #ddd; border-radius: 999px; font-size: 11px; margin-left: 6px; }
+
+    /* Make plots shorter so everything fits */
+    .plot { height: 240px; }
+    .plotTall { height: 280px; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 12px;
+      align-items: start;
+    }
+
+    /* Compact slider rows: label | slider | value */
+    .sliderRow {
+      display: grid;
+      grid-template-columns: 24px 1fr 72px;
+      gap: 10px;
+      align-items: center;
+      margin: 6px 0;
+    }
+    .sliderRow .lbl { font-size: 12px; font-weight: 650; }
+    .sliderRow .val { font-size: 12px; text-align: right; color: #222; }
     input[type="range"] { width: 100%; }
-    .plot { height: 320px; }
-    .plotTall { height: 380px; }
-    .kvs { font-size: 13px; line-height: 1.35; }
+
+    .kvs { font-size: 12px; line-height: 1.25; }
     .kvs b { font-weight: 650; }
-    hr { border: 0; border-top: 1px solid #eee; margin: 10px 0; }
-    .pill { display:inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; font-size: 12px; margin-left: 6px; }
+    hr { border: 0; border-top: 1px solid #eee; margin: 8px 0; }
+
+    @media (max-width: 1050px) {
+      .grid3 { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .plot { height: 260px; }
+      .plotTall { height: 300px; }
+    }
   </style>
 </head>
+
 <body>
-  <h2>Interactive figures: city layout, Figure 1, Figure 2-3</h2>
+  <h2>Interactive figures: 3 plots in a row, compact sliders below</h2>
 
-  <!-- SECTION 1: CITY LAYOUT -->
-  <div class="card" style="margin-bottom:14px;">
-    <div class="section">
+  <!-- TOP: THREE PLOTS IN A ROW -->
+  <div class="grid3">
+    <div class="card">
+      <div class="plotTitle">City layout <span class="pill">instant response</span></div>
+      <div class="small">
+        Thick segment is the business area. The x marker is the historic center (g). The circle is the economic center (μ).
+      </div>
+      <div id="plot_layout" class="plot"></div>
+    </div>
+
+    <div class="card">
+      <div class="plotTitle">Figure 1 style: sweep historic center location</div>
+      <div class="small">
+        We sweep g from 0 to 1.0 (x axis). Dashed line is the current g from the slider.
+        Green X markers show current q and p at that g.
+      </div>
+      <div id="plot_fig1" class="plotTall"></div>
+    </div>
+
+    <div class="card">
+      <div class="plotTitle">Figure 2-3 style: sweep transport cost</div>
+      <div class="small">
+        We sweep t from 0.0 to 1.5 (y axis). Dashed vertical line marks g. Dots show the current t.
+      </div>
+      <div id="plot_fig2" class="plotTall"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: COMMON SLIDERS + CURRENT INTERPRETATION -->
+  <div class="card">
+    <div class="controls">
       <div>
-        <div class="sectionTitle">City layout <span class="pill">instant response</span></div>
-        <div class="small">
-          Thick segment is the business area. The x marker is the historic center (g). The circle is the economic center (μ).
+        <div class="plotTitle">Common parameters</div>
+        <div class="small">These sliders update all three plots.</div>
+
+        <div class="sliderRow">
+          <div class="lbl">N</div>
+          <input id="N" type="range" min="0.20" max="1.90" step="0.05" value="1.40"/>
+          <div class="val" id="N_val"></div>
         </div>
 
-        <div class="row">
-          <label for="N_layout">N</label>
-          <div><span id="N_layout_val"></span></div>
-          <input id="N_layout" type="range" min="0.20" max="1.90" step="0.05" value="1.40"/>
+        <div class="sliderRow">
+          <div class="lbl">e</div>
+          <input id="e" type="range" min="0.01" max="1.00" step="0.01" value="0.10"/>
+          <div class="val" id="e_val"></div>
         </div>
 
-        <div class="row">
-          <label for="e_layout">e</label>
-          <div><span id="e_layout_val"></span></div>
-          <input id="e_layout" type="range" min="0.01" max="1.00" step="0.01" value="0.10"/>
+        <div class="sliderRow">
+          <div class="lbl">g</div>
+          <input id="g" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
+          <div class="val" id="g_val"></div>
         </div>
 
-        <div class="row">
-          <label for="g_layout">g</label>
-          <div><span id="g_layout_val"></span></div>
-          <input id="g_layout" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
+        <div class="sliderRow">
+          <div class="lbl">t</div>
+          <input id="t" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
+          <div class="val" id="t_val"></div>
         </div>
 
-        <div class="row">
-          <label for="t_layout">t</label>
-          <div><span id="t_layout_val"></span></div>
-          <input id="t_layout" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
+        <div class="small" style="margin-top:6px;">
+          Tip: Increasing t makes distance more painful, so the business area often shifts to reduce travel.
         </div>
+      </div>
 
-        <hr/>
-
+      <div>
+        <div class="plotTitle">Current interpretation</div>
         <div class="kvs">
-          <div><b>Current interpretation</b></div>
-          <div style="margin-top:6px;"><b>Business area</b></div>
+          <div style="margin-top:4px;"><b>Business area</b></div>
           <div>Left edge: <span id="q_out"></span></div>
           <div>Right edge: <span id="p_out"></span></div>
 
-          <div style="margin-top:8px;"><b>Historic center</b>: <span id="g_out"></span></div>
+          <div style="margin-top:6px;"><b>Historic center</b>: <span id="g_out"></span></div>
           <div><b>Economic center</b>: <span id="mu_out"></span></div>
 
-          <div style="margin-top:8px;"><b>Situation label</b></div>
-          <div id="case_out" class="small"></div>
+          <hr/>
+
+          <div><b>Situation label</b></div>
+          <div id="case_out" class="small" style="margin:0;"></div>
         </div>
-      </div>
-
-      <div>
-        <div id="plot_layout" class="plot"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 2: FIGURE 1 -->
-  <div class="card" style="margin-bottom:14px;">
-    <div class="section">
-      <div>
-        <div class="sectionTitle">Figure 1 style: move the historic center location</div>
-        <div class="small">
-          Here we sweep g from 0 up to 1.0. For each g, we compute where the business area would sit.
-          The shaded band between the two lines is the business area.
-        </div>
-
-        <div class="row">
-          <label for="N_fig1">N</label>
-          <div><span id="N_fig1_val"></span></div>
-          <input id="N_fig1" type="range" min="0.20" max="1.90" step="0.05" value="1.40"/>
-        </div>
-
-        <div class="row">
-          <label for="e_fig1">e</label>
-          <div><span id="e_fig1_val"></span></div>
-          <input id="e_fig1" type="range" min="0.01" max="1.00" step="0.01" value="0.10"/>
-        </div>
-
-        <div class="row">
-          <label for="t_fig1">t</label>
-          <div><span id="t_fig1_val"></span></div>
-          <input id="t_fig1" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
-        </div>
-
-        <div class="small" style="margin-top:8px;">
-          Tip: If you raise t, distance hurts more, so the model often shifts the business area to reduce long travel.
-        </div>
-      </div>
-
-      <div>
-        <div id="plot_fig1" class="plotTall"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 3: FIGURE 2-3 -->
-  <div class="card">
-    <div class="section">
-      <div>
-        <div class="sectionTitle">Figure 2-3 style: move transport cost</div>
-        <div class="small">
-          Here we sweep t from 0.0 to 1.5. For each t, we compute the business area edges.
-          The dashed line marks the historic center g. Dots show the current t from the slider.
-        </div>
-
-        <div class="row">
-          <label for="N_fig2">N</label>
-          <div><span id="N_fig2_val"></span></div>
-          <input id="N_fig2" type="range" min="0.20" max="1.90" step="0.05" value="1.40"/>
-        </div>
-
-        <div class="row">
-          <label for="e_fig2">e</label>
-          <div><span id="e_fig2_val"></span></div>
-          <input id="e_fig2" type="range" min="0.01" max="1.00" step="0.01" value="0.10"/>
-        </div>
-
-        <div class="row">
-          <label for="g_fig2">g</label>
-          <div><span id="g_fig2_val"></span></div>
-          <input id="g_fig2" type="range" min="0.00" max="1.00" step="0.01" value="0.25"/>
-        </div>
-
-        <div class="row">
-          <label for="t_fig2">t (current)</label>
-          <div><span id="t_fig2_val"></span></div>
-          <input id="t_fig2" type="range" min="0.00" max="1.50" step="0.01" value="0.25"/>
-        </div>
-      </div>
-
-      <div>
-        <div id="plot_fig2" class="plotTall"></div>
       </div>
     </div>
   </div>
@@ -172,7 +157,6 @@
     return x.toFixed(4);
   }
 
-  // Model solver
   function solveBounds(N, t, e, g) {
     if (!(N > 0 && N < 2)) return { ok:false, reason:"N must be between 0 and 2." };
     if (!(e > 0)) return { ok:false, reason:"e must be positive." };
@@ -250,80 +234,35 @@
     };
   }
 
-  // Shared state across all slider copies
-  const state = {
-    N: 1.40,
-    e: 0.10,
-    g: 0.25,
-    t: 0.25
-  };
-
-  const sliderMap = {
-    N: ["N_layout","N_fig1","N_fig2"],
-    e: ["e_layout","e_fig1","e_fig2"],
-    g: ["g_layout","g_fig2"],
-    t: ["t_layout","t_fig1","t_fig2"]
-  };
-
-  const valueLabelMap = {
-    N_layout: "N_layout_val", N_fig1: "N_fig1_val", N_fig2: "N_fig2_val",
-    e_layout: "e_layout_val", e_fig1: "e_fig1_val", e_fig2: "e_fig2_val",
-    g_layout: "g_layout_val", g_fig2: "g_fig2_val",
-    t_layout: "t_layout_val", t_fig1: "t_fig1_val", t_fig2: "t_fig2_val"
-  };
-
-  let isPropagating = false;
+  const state = { N: 1.40, e: 0.10, g: 0.25, t: 0.25 };
 
   function readSlider(id) {
     return parseFloat(document.getElementById(id).value);
   }
 
-  function setSlider(id, val) {
-    const el = document.getElementById(id);
-    el.value = String(val);
-    const lblId = valueLabelMap[id];
-    if (lblId) document.getElementById(lblId).textContent = fmt(val);
+  function syncLabelsFromState() {
+    document.getElementById("N_val").textContent = fmt(state.N);
+    document.getElementById("e_val").textContent = fmt(state.e);
+    document.getElementById("g_val").textContent = fmt(state.g);
+    document.getElementById("t_val").textContent = fmt(state.t);
   }
 
-  function syncAllLabels() {
-    for (const [param, ids] of Object.entries(sliderMap)) {
-      for (const id of ids) {
-        if (document.getElementById(id)) {
-          const v = readSlider(id);
-          const lblId = valueLabelMap[id];
-          if (lblId) document.getElementById(lblId).textContent = fmt(v);
-        }
-      }
+  function updateText(sol) {
+    if (!sol.ok) {
+      document.getElementById("q_out").textContent = "nan";
+      document.getElementById("p_out").textContent = "nan";
+      document.getElementById("g_out").textContent = "nan";
+      document.getElementById("mu_out").textContent = "nan";
+      document.getElementById("case_out").textContent = sol.reason;
+      return;
     }
+    document.getElementById("q_out").textContent = fmt(sol.q);
+    document.getElementById("p_out").textContent = fmt(sol.p);
+    document.getElementById("g_out").textContent = fmt(sol.g);
+    document.getElementById("mu_out").textContent = fmt(sol.mu);
+    document.getElementById("case_out").textContent = sol.caseText;
   }
 
-  function propagateFrom(sourceId) {
-    if (isPropagating) return;
-    isPropagating = true;
-
-    // Identify which param this source slider belongs to
-    let changedParam = null;
-    for (const [param, ids] of Object.entries(sliderMap)) {
-      if (ids.includes(sourceId)) { changedParam = param; break; }
-    }
-    if (changedParam === null) { isPropagating = false; return; }
-
-    // Update state from the source slider
-    const newVal = readSlider(sourceId);
-    state[changedParam] = newVal;
-
-    // Push state into all sliders that represent this param
-    for (const id of sliderMap[changedParam]) {
-      if (id !== sourceId && document.getElementById(id)) setSlider(id, state[changedParam]);
-    }
-
-    // Also refresh the label on the source slider
-    setSlider(sourceId, state[changedParam]);
-
-    isPropagating = false;
-  }
-
-  // Plot: city layout
   function drawLayout(sol) {
     let q = NaN, p = NaN, mu = NaN, g = NaN;
     if (sol.ok) { q = sol.q; p = sol.p; mu = sol.mu; g = sol.g; }
@@ -344,20 +283,20 @@
     ];
 
     const layout = {
-      margin: { l: 40, r: 20, t: 10, b: 30 },
+      font: { size: 11 },
+      margin: { l: 34, r: 10, t: 6, b: 26 },
       xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
       yaxis: { range: [-0.8, 0.8], visible: false },
       showlegend: false
     };
 
-    Plotly.react("plot_layout", data, layout, {displayModeBar: false});
+    Plotly.react("plot_layout", data, layout, {displayModeBar: false, responsive: true});
   }
 
-  // Plot: Figure 1 (gmax fixed at 1.0)
   function drawFig1() {
     const N = state.N, e = state.e, t = state.t;
     const gmax = 1.0;
-    const n = 360;
+    const n = 320;
 
     const gs = [];
     const qs = [];
@@ -371,31 +310,54 @@
       ps.push(sol.ok ? sol.p : NaN);
     }
 
+    const gCur = state.g;
+    const solCur = solveBounds(N, t, e, gCur);
+    const qCur = solCur.ok ? solCur.q : NaN;
+    const pCur = solCur.ok ? solCur.p : NaN;
+
+    const yLo = -1.05, yHi = 1.05;
+
     const data = [
-      { x: gs, y: gs, mode: "lines", name: "g (reference line)" },
-      { x: gs, y: ps, mode: "lines", name: "right edge" },
-      { x: gs, y: qs, mode: "lines", name: "left edge" },
+      { x: gs, y: gs, mode: "lines", name: "g (reference)" },
+      { x: gs, y: ps, mode: "lines", name: "right edge p(g)" },
+      { x: gs, y: qs, mode: "lines", name: "left edge q(g)" },
+
       { x: gs, y: qs, mode: "lines", line: { width: 0 }, showlegend: false },
-      { x: gs, y: ps, mode: "lines", fill: "tonexty", opacity: 0.2, name: "business area" }
+      { x: gs, y: ps, mode: "lines", fill: "tonexty", opacity: 0.2, name: "business area" },
+
+      { x: [gCur, gCur], y: [yLo, yHi], mode: "lines",
+        line: { dash: "dash", width: 2 }, name: "current g" },
+
+      { x: solCur.ok ? [gCur, gCur] : [], y: solCur.ok ? [qCur, pCur] : [],
+        mode: "markers",
+        marker: { symbol: "x", size: 11, color: "green", line: { width: 2, color: "green" } },
+        name: "current q,p" }
     ];
 
     const layout = {
-      margin: { l: 60, r: 20, t: 10, b: 50 },
+      font: { size: 11 },
+      margin: { l: 52, r: 10, t: 34, b: 40 },
       xaxis: { range: [0, gmax], title: "g (historic center location)" },
-      yaxis: { range: [-1.05, 1.05], title: "location on the city line" },
-      legend: { orientation: "h", y: -0.25 }
+      yaxis: { range: [yLo, yHi], title: "location on the city line" },
+      legend: {
+        orientation: "h",
+        yanchor: "bottom",
+        y: 1.02,
+        xanchor: "left",
+        x: 0,
+        font: { size: 10 }
+      }
     };
 
-    Plotly.react("plot_fig1", data, layout, {displayModeBar: false});
+    Plotly.react("plot_fig1", data, layout, {displayModeBar: false, responsive: true});
   }
 
-  // Plot: Figure 2-3 (tmin fixed at 0.0, tmax fixed at 1.5)
   function drawFig2() {
     const N = state.N, e = state.e, g = state.g;
     const tmin = 0.0;
     const tmax = 1.5;
 
-    const n = 320;
+    const n = 280;
     const ts = [];
     const qs = [];
     const ps = [];
@@ -413,38 +375,33 @@
     const pNow = solNow.ok ? solNow.p : NaN;
 
     const data = [
-      { x: qs, y: ts, mode: "lines", name: "left edge" },
-      { x: ps, y: ts, mode: "lines", name: "right edge" },
-      { x: [g, g], y: [tmin, tmax], mode: "lines", line: { dash: "dash" }, name: "g (fixed)" },
-      { x: [qNow, pNow], y: [state.t, state.t], mode: "markers", marker: { size: 9 }, name: "current t points" },
+      { x: qs, y: ts, mode: "lines", name: "left edge q(t)" },
+      { x: ps, y: ts, mode: "lines", name: "right edge p(t)" },
+
       { x: qs, y: ts, mode: "lines", line: { width: 0 }, showlegend: false },
-      { x: ps, y: ts, mode: "lines", fill: "tonextx", opacity: 0.2, name: "business area" }
+      { x: ps, y: ts, mode: "lines", fill: "tonextx", opacity: 0.2, name: "business area" },
+
+      { x: [g, g], y: [tmin, tmax], mode: "lines", line: { dash: "dash" }, name: "g (fixed)" },
+
+      { x: [qNow, pNow], y: [state.t, state.t], mode: "markers", marker: { size: 8 }, name: "current t points" }
     ];
 
     const layout = {
-      margin: { l: 60, r: 20, t: 10, b: 50 },
+      font: { size: 11 },
+      margin: { l: 52, r: 10, t: 34, b: 40 },
       xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
       yaxis: { range: [tmin, tmax], title: "t (transport cost)" },
-      legend: { orientation: "h", y: -0.25 }
+      legend: {
+        orientation: "h",
+        yanchor: "bottom",
+        y: 1.02,
+        xanchor: "left",
+        x: 0,
+        font: { size: 10 }
+      }
     };
 
-    Plotly.react("plot_fig2", data, layout, {displayModeBar: false});
-  }
-
-  function updateText(sol) {
-    if (!sol.ok) {
-      document.getElementById("q_out").textContent = "nan";
-      document.getElementById("p_out").textContent = "nan";
-      document.getElementById("g_out").textContent = "nan";
-      document.getElementById("mu_out").textContent = "nan";
-      document.getElementById("case_out").textContent = sol.reason;
-      return;
-    }
-    document.getElementById("q_out").textContent = fmt(sol.q);
-    document.getElementById("p_out").textContent = fmt(sol.p);
-    document.getElementById("g_out").textContent = fmt(sol.g);
-    document.getElementById("mu_out").textContent = fmt(sol.mu);
-    document.getElementById("case_out").textContent = sol.caseText;
+    Plotly.react("plot_fig2", data, layout, {displayModeBar: false, responsive: true});
   }
 
   function updateAll() {
@@ -455,28 +412,24 @@
     drawFig2();
   }
 
-  // Attach listeners and initialize
   function wireUp() {
-    for (const ids of Object.values(sliderMap)) {
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        el.addEventListener("input", () => {
-          propagateFrom(id);
-
-          // Refresh state from the canonical slider values (use one representative per param)
-          for (const [param, idList] of Object.entries(sliderMap)) {
-            const first = idList.find(x => document.getElementById(x));
-            if (first) state[param] = readSlider(first);
-          }
-
-          updateAll();
-        });
-      }
-    }
-
-    syncAllLabels();
+    syncLabelsFromState();
     updateAll();
+
+    ["N","e","g","t"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", () => {
+        state[id] = readSlider(id);
+        syncLabelsFromState();
+        updateAll();
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      Plotly.Plots.resize("plot_layout");
+      Plotly.Plots.resize("plot_fig1");
+      Plotly.Plots.resize("plot_fig2");
+    });
   }
 
   wireUp();
