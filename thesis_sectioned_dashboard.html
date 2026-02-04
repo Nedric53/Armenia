@@ -5,28 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Interactive thesis figures (3-up + compact controls)</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 12px; }
-    h2 { margin: 0 0 8px 0; font-size: 20px; }
+    :root{
+      --pad: 12px;
+      --gap: 10px;
+      --line: rgba(0,0,0,0.12);
+      --muted: rgba(0,0,0,0.62);
+
+      /* Golden mean: cap plot heights so they do not stretch */
+      --plotH: clamp(220px, 34vh, 320px);
+      --plotHSmall: clamp(200px, 30vh, 280px);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: var(--pad);
+      background: #fff;
+      color: #111;
+    }
+
+    h2 { margin: 0 0 8px 0; font-size: 18px; }
 
     .grid3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(240px, 1fr));
-      gap: 10px;
+      gap: var(--gap);
       align-items: start;
-      margin-bottom: 10px;
+      margin-bottom: var(--gap);
     }
 
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 10px; background: #fff; }
-    .plotTitle { font-weight: 750; margin: 0 0 4px 0; font-size: 14px; }
-    .small { color: #555; font-size: 11px; line-height: 1.25; margin-bottom: 6px; }
-    .pill { display:inline-block; padding: 1px 7px; border: 1px solid #ddd; border-radius: 999px; font-size: 11px; margin-left: 6px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+    }
 
-    /* Make plots shorter so everything fits */
-    .plot { height: 240px; }
-    .plotTall { height: 280px; }
+    .plotTitle { font-weight: 750; margin: 0 0 4px 0; font-size: 13px; }
+    .small { color: var(--muted); font-size: 11px; line-height: 1.25; margin: 0 0 6px 0; }
+    .pill { display:inline-block; padding: 1px 7px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; margin-left: 6px; }
+
+    /* Key change: explicit heights, not flex-fill */
+    .plot { height: var(--plotH); }
+    .plotSmall { height: var(--plotHSmall); }
 
     .controls {
       display: grid;
@@ -35,7 +63,6 @@
       align-items: start;
     }
 
-    /* Compact slider rows: label | slider | value */
     .sliderRow {
       display: grid;
       grid-template-columns: 24px 1fr 72px;
@@ -49,13 +76,15 @@
 
     .kvs { font-size: 12px; line-height: 1.25; }
     .kvs b { font-weight: 650; }
-    hr { border: 0; border-top: 1px solid #eee; margin: 8px 0; }
+    hr { border: 0; border-top: 1px solid rgba(0,0,0,0.08); margin: 8px 0; }
 
     @media (max-width: 1050px) {
       .grid3 { grid-template-columns: 1fr; }
       .controls { grid-template-columns: 1fr; }
-      .plot { height: 260px; }
-      .plotTall { height: 300px; }
+      :root{
+        --plotH: clamp(240px, 38vh, 360px);
+        --plotHSmall: clamp(220px, 34vh, 320px);
+      }
     }
   </style>
 </head>
@@ -63,14 +92,13 @@
 <body>
   <h2>Interactive figures: 3 plots in a row, compact sliders below</h2>
 
-  <!-- TOP: THREE PLOTS IN A ROW -->
   <div class="grid3">
     <div class="card">
       <div class="plotTitle">City layout <span class="pill">instant response</span></div>
       <div class="small">
         Thick segment is the business area. The x marker is the historic center (g). The circle is the economic center (μ).
       </div>
-      <div id="plot_layout" class="plot"></div>
+      <div id="plot_layout" class="plot plotSmall"></div>
     </div>
 
     <div class="card">
@@ -79,7 +107,7 @@
         We sweep g from 0 to 1.0 (x axis). Dashed line is the current g from the slider.
         Green X markers show current q and p at that g.
       </div>
-      <div id="plot_fig1" class="plotTall"></div>
+      <div id="plot_fig1" class="plot"></div>
     </div>
 
     <div class="card">
@@ -87,11 +115,10 @@
       <div class="small">
         We sweep t from 0.0 to 1.5 (y axis). Dashed vertical line marks g. Dots show the current t.
       </div>
-      <div id="plot_fig2" class="plotTall"></div>
+      <div id="plot_fig2" class="plot"></div>
     </div>
   </div>
 
-  <!-- BOTTOM: COMMON SLIDERS + CURRENT INTERPRETATION -->
   <div class="card">
     <div class="controls">
       <div>
@@ -157,6 +184,12 @@
     return x.toFixed(4);
   }
 
+  function elH(id, fallback){
+    const el = document.getElementById(id);
+    const h = el ? el.clientHeight : 0;
+    return (h && h > 50) ? h : fallback;
+  }
+
   function solveBounds(N, t, e, g) {
     if (!(N > 0 && N < 2)) return { ok:false, reason:"N must be between 0 and 2." };
     if (!(e > 0)) return { ok:false, reason:"e must be positive." };
@@ -169,7 +202,6 @@
       return (q < p) && (q >= -1 - 1e-6) && (p <= 1 + 1e-6);
     }
 
-    // Candidate B: historic center right of the business area
     let muB = NaN, pB = NaN, qB = NaN;
     if (theta > EPS) {
       muB = -M * N / (4 * theta);
@@ -177,7 +209,6 @@
       qB = muB - M / 2;
     }
 
-    // Candidate C: historic center left of the business area
     let muC = NaN, pC = NaN, qC = NaN;
     if (theta > EPS) {
       muC =  M * N / (4 * theta);
@@ -185,7 +216,6 @@
       qC = muC - M / 2;
     }
 
-    // Candidate A: historic center inside the business area
     let muA = NaN, pA = NaN, qA = NaN;
     const denom = (N - 2 * theta);
     if (Math.abs(denom) > EPS) {
@@ -284,13 +314,14 @@
 
     const layout = {
       font: { size: 11 },
-      margin: { l: 34, r: 10, t: 6, b: 26 },
+      margin: { l: 34, r: 10, t: 4, b: 26 },
       xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
       yaxis: { range: [-0.8, 0.8], visible: false },
-      showlegend: false
+      showlegend: false,
+      height: elH("plot_layout", 260)
     };
 
-    Plotly.react("plot_layout", data, layout, {displayModeBar: false, responsive: true});
+    Plotly.react("plot_layout", data, layout, {displayModeBar: false, responsive: false});
   }
 
   function drawFig1() {
@@ -336,20 +367,21 @@
 
     const layout = {
       font: { size: 11 },
-      margin: { l: 52, r: 10, t: 34, b: 40 },
+      margin: { l: 52, r: 10, t: 26, b: 38 },
       xaxis: { range: [0, gmax], title: "g (historic center location)" },
       yaxis: { range: [yLo, yHi], title: "location on the city line" },
       legend: {
         orientation: "h",
         yanchor: "bottom",
-        y: 1.02,
+        y: 1.01,
         xanchor: "left",
         x: 0,
         font: { size: 10 }
-      }
+      },
+      height: elH("plot_fig1", 300)
     };
 
-    Plotly.react("plot_fig1", data, layout, {displayModeBar: false, responsive: true});
+    Plotly.react("plot_fig1", data, layout, {displayModeBar: false, responsive: false});
   }
 
   function drawFig2() {
@@ -388,20 +420,21 @@
 
     const layout = {
       font: { size: 11 },
-      margin: { l: 52, r: 10, t: 34, b: 40 },
+      margin: { l: 52, r: 10, t: 26, b: 38 },
       xaxis: { range: [-1.05, 1.05], title: "location on the city line" },
       yaxis: { range: [tmin, tmax], title: "t (transport cost)" },
       legend: {
         orientation: "h",
         yanchor: "bottom",
-        y: 1.02,
+        y: 1.01,
         xanchor: "left",
         x: 0,
         font: { size: 10 }
-      }
+      },
+      height: elH("plot_fig2", 300)
     };
 
-    Plotly.react("plot_fig2", data, layout, {displayModeBar: false, responsive: true});
+    Plotly.react("plot_fig2", data, layout, {displayModeBar: false, responsive: false});
   }
 
   function updateAll() {
@@ -425,10 +458,10 @@
       });
     });
 
+    let rT = 0;
     window.addEventListener("resize", () => {
-      Plotly.Plots.resize("plot_layout");
-      Plotly.Plots.resize("plot_fig1");
-      Plotly.Plots.resize("plot_fig2");
+      clearTimeout(rT);
+      rT = setTimeout(() => updateAll(), 120);
     });
   }
 
