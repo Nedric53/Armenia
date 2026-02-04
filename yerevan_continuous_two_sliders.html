@@ -17,7 +17,10 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: clamp(140px, 13vw, 190px) 1fr clamp(140px, 13vw, 190px);
+
+      /* side panels smaller so map is bigger */
+      grid-template-columns: clamp(92px, 7vw, 128px) 1fr clamp(92px, 7vw, 128px);
+
       gap: 10px;
       padding: 10px;
       box-sizing: border-box;
@@ -185,14 +188,14 @@
     </div>
   </div>
 <div class="value" id="tVal"></div>
-      <input id="tSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00" style="width: 520px;">
+      <input id="tSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00" orient="vertical">
       <div class="info">Lower = faster</div>
     </div>
 
     <div class="row">
       <div class="label">Historic amenity strength (0.1..2.0)</div>
       <div class="value" id="aVal"></div>
-      <input id="aSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00" style="width: 520px;">
+      <input id="aSlider" class="vSlider" type="range" min="0.10" max="2.00" step="0.01" value="1.00" orient="vertical">
       <div class="info">Higher = stronger</div>
     </div>
 
@@ -310,7 +313,7 @@
     }
 
     // Map init
-    const map = L.map('map').setView([g.lat, g.lon], 13);
+    const map = L.map('map').setView([g.lat, g.lon], 11);
     
     const centerBtn = document.getElementById('centerBtn');
     if (centerBtn) {
@@ -399,11 +402,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       if (typeof tVal === "number" && isFinite(tVal)) tSlider.value = String(tVal);
       if (typeof aVal === "number" && isFinite(aVal)) aSlider.value = String(aVal);
 
-      // Prefer triggering the app's existing listeners
       _dispatchInput(tSlider);
       _dispatchInput(aSlider);
 
-      // Also call update() if it exists
       try {
         if (typeof update === "function") update();
       } catch (e) {}
@@ -417,12 +418,17 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       }
     }
 
-    // Debounced invalidate to avoid spamming Leaflet on rapid layout changes
     let _invT = 0;
     function invalidateMapSize() {
       try {
         clearTimeout(_invT);
         _invT = setTimeout(() => map.invalidateSize(), 0);
+      } catch (e) {}
+    }
+
+    function postReady() {
+      try {
+        window.parent && window.parent.postMessage({ type: "vizReady" }, "*");
       } catch (e) {}
     }
 
@@ -434,16 +440,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       if (msg.type === "setView") setMapView(msg.lat, msg.lon, msg.zoom);
       if (msg.type === "invalidateSize") invalidateMapSize();
 
-      // Parent can ping, child responds ready
-      if (msg.type === "ping") {
-        try { window.parent && window.parent.postMessage({ type: "vizReady" }, "*"); } catch (e) {}
-      }
+      if (msg.type === "ping") postReady();
     });
 
-    // Send ready (may be missed by parent, parent also pings and uses iframe load)
-    try {
-      window.parent && window.parent.postMessage({ type: "vizReady" }, "*");
-    } catch (e) {}
+    postReady();
     // ---- end injected block ----
     
     // Initial draw
