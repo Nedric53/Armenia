@@ -284,12 +284,14 @@ body{
 /* Make only the model section nearly full width with small margins */
 #model .container{
   max-width: none !important;
-  width: calc(100vw - (2 * var(--modelPad))) !important;
-  padding-left: var(--modelPad) !important;
-  padding-right: var(--modelPad) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: var(--modelPad, 12px) !important;
+  padding-right: var(--modelPad, 12px) !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
 
 /* The header inside model should also align with new width */
 #model .modelHeader{
@@ -416,12 +418,14 @@ body.modelPinned #model .stickyViz{
 
 #compare .container{
   max-width: none !important;
-  width: calc(100vw - (2 * var(--modelPad, 12px))) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
   padding-left: var(--modelPad, 12px) !important;
   padding-right: var(--modelPad, 12px) !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
 
 #compare .embedCard{
   background: var(--panel);
