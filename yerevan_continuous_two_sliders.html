@@ -366,16 +366,34 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       });
     }
 
+    // Discrete word scales (edit these to your taste)
+    const tWords = ["Very fast", "Fast", "Normal", "Slow", "Very slow"];
+    const tFactors = [0.60, 0.80, 1.00, 1.30, 1.60];   // lower = faster (multiplies tau)
+    
+    const aWords = ["Very weak", "Weak", "Normal", "Strong", "Very strong"];
+    const aFactors = [0.60, 0.80, 1.00, 1.30, 1.60];   // multiplies amenity terms
+    
+    function clampIdx(x) {
+      x = Math.round(x);
+      if (x < 0) return 0;
+      if (x > 4) return 4;
+      return x;
+    }
+    
     function update() {
-      const tVal = parseFloat(document.getElementById('tSlider').value);
-      const aVal = parseFloat(document.getElementById('aSlider').value);
-
-      document.getElementById('tVal').textContent = tVal.toFixed(2);
-      document.getElementById('aVal').textContent = aVal.toFixed(2);
-
-      const res = solve(tVal, aVal);
+      const ti = clampIdx(parseFloat(document.getElementById('tSlider').value));
+      const ai = clampIdx(parseFloat(document.getElementById('aSlider').value));
+    
+      document.getElementById('tVal').textContent = tWords[ti];
+      document.getElementById('aVal').textContent = aWords[ai];
+    
+      const tFactor = tFactors[ti];
+      const aFactor = aFactors[ai];
+    
+      const res = solve(tFactor, aFactor);
       applyResult(res);
     }
+
 
     function scheduleUpdate() {
       if (pending) clearTimeout(pending);
@@ -394,21 +412,37 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       } catch (e) {}
     }
 
+    function _nearestIdx(factor, arr) {
+      if (typeof factor !== "number" || !isFinite(factor)) return 2;
+      let best = 0;
+      let bestD = Infinity;
+      for (let i = 0; i < arr.length; i++) {
+        const d = Math.abs(arr[i] - factor);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+    
     function setSliders(tVal, aVal) {
       const tSlider = document.getElementById("tSlider");
       const aSlider = document.getElementById("aSlider");
       if (!tSlider || !aSlider) return;
-
-      if (typeof tVal === "number" && isFinite(tVal)) tSlider.value = String(tVal);
-      if (typeof aVal === "number" && isFinite(aVal)) aSlider.value = String(aVal);
-
+    
+      // Use the arrays defined in the viz JS if present
+      const tArr = (typeof tFactors !== "undefined" && Array.isArray(tFactors)) ? tFactors : [0.6,0.8,1.0,1.3,1.6];
+      const aArr = (typeof aFactors !== "undefined" && Array.isArray(aFactors)) ? aFactors : [0.6,0.8,1.0,1.3,1.6];
+    
+      if (typeof tVal === "number" && isFinite(tVal)) tSlider.value = String(_nearestIdx(tVal, tArr));
+      if (typeof aVal === "number" && isFinite(aVal)) aSlider.value = String(_nearestIdx(aVal, aArr));
+    
       _dispatchInput(tSlider);
       _dispatchInput(aSlider);
-
+    
       try {
         if (typeof update === "function") update();
       } catch (e) {}
     }
+
 
     function setMapView(lat, lon, zoom) {
       if (typeof lat === "number" && typeof lon === "number" && typeof zoom === "number") {
