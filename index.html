@@ -545,7 +545,7 @@ body.modelPinned #model .stickyViz{
 
             <section class="step"
               data-title="Faster transport"
-              data-t="0.70"
+              data-t="1.50"
               data-a="1.00"
               data-view-lat=""
               data-view-lon=""
@@ -554,29 +554,7 @@ body.modelPinned #model .stickyViz{
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Faster transport</h3>
-                <p class="stepBody">Lower transport factor reduces time costs and can re-balance the fixed point μ.</p>
-                
-                <div class="chipRow">
-                  <span class="chip">Transport: 0.70</span>
-                  <span class="chip">Amenity: 1.00</span>
-                </div>
-              </div>
-            
-            </section>
-            
-
-            <section class="step"
-              data-title="Slower transport"
-              data-t="1.50"
-              data-a="1.00"
-              data-view-lat=""
-              data-view-lon=""
-              data-view-zoom="" data-prog="50.00">
-              
-              <div class="stepCard">
-                <div class="stepKicker">Scenario</div>
-                <h3>Slower transport</h3>
-                <p class="stepBody">Higher transport factor increases the travel-time penalty and may pull μ inward.</p>
+                <p class="stepBody">Higher transport speed multiplier lowers time costs.</p>
                 
                 <div class="chipRow">
                   <span class="chip">Transport: 1.50</span>
@@ -588,9 +566,31 @@ body.modelPinned #model .stickyViz{
             
 
             <section class="step"
+              data-title="Slower transport"
+              data-t="0.50"
+              data-a="1.00"
+              data-view-lat=""
+              data-view-lon=""
+              data-view-zoom="" data-prog="50.00">
+              
+              <div class="stepCard">
+                <div class="stepKicker">Scenario</div>
+                <h3>Slower transport</h3>
+                <p class="stepBody">Lower transport speed multiplier raises time costs.</p>
+                
+                <div class="chipRow">
+                  <span class="chip">Transport: 0.50</span>
+                  <span class="chip">Amenity: 1.00</span>
+                </div>
+              </div>
+            
+            </section>
+            
+
+            <section class="step"
               data-title="Historic pull"
               data-t="1.00"
-              data-a="1.60"
+              data-a="1.50"
               data-view-lat=""
               data-view-lon=""
               data-view-zoom="" data-prog="75.00">
@@ -598,11 +598,11 @@ body.modelPinned #model .stickyViz{
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Historic amenities matter more</h3>
-                <p class="stepBody">Scaling amenity-related terms increases the pull of historic proximity and heritage density.</p>
+                <p class="stepBody">Higher amenity multiplier strengthens amenity-related effects.</p>
                 
                 <div class="chipRow">
                   <span class="chip">Transport: 1.00</span>
-                  <span class="chip">Amenity: 1.60</span>
+                  <span class="chip">Amenity: 1.50</span>
                 </div>
               </div>
             
@@ -612,7 +612,7 @@ body.modelPinned #model .stickyViz{
             <section class="step"
               data-title="Weaker amenities"
               data-t="1.00"
-              data-a="0.60"
+              data-a="0.50"
               data-view-lat=""
               data-view-lon=""
               data-view-zoom="" data-prog="100.00">
@@ -620,11 +620,11 @@ body.modelPinned #model .stickyViz{
               <div class="stepCard">
                 <div class="stepKicker">Scenario</div>
                 <h3>Historic amenities matter less</h3>
-                <p class="stepBody">Reducing amenity strength dampens historic effects relative to other predictors.</p>
+                <p class="stepBody">Lower amenity multiplier weakens amenity-related effects.</p>
                 
                 <div class="chipRow">
                   <span class="chip">Transport: 1.00</span>
-                  <span class="chip">Amenity: 0.60</span>
+                  <span class="chip">Amenity: 0.50</span>
                 </div>
               </div>
             
@@ -634,7 +634,7 @@ body.modelPinned #model .stickyViz{
             <section class="step stepIdle" style="--stepPad:22.0vh;"
               data-title="Weaker amenities"
               data-t="1.00"
-              data-a="0.60"
+              data-a="0.50"
               data-view-lat=""
               data-view-lon=""
               data-view-zoom="" data-prog="100.00">
@@ -645,7 +645,7 @@ body.modelPinned #model .stickyViz{
             <section class="step stepIdle" style="--stepPad:22.0vh;"
               data-title="Weaker amenities"
               data-t="1.00"
-              data-a="0.60"
+              data-a="0.50"
               data-view-lat=""
               data-view-lon=""
               data-view-zoom="" data-prog="100.00">
@@ -763,11 +763,13 @@ body.modelPinned #model .stickyViz{
       if (pending.invalidate) _postToViz({ type: "invalidateSize" });
     }
 
+    
     function sendToViz(msg) {
-      if (!iframe || !iframe.contentWindow) return;
       _remember(msg);
+      if (!iframe || !iframe.contentWindow) return;
       _postToViz(msg);
     }
+    
 
     if (iframe) {
       iframe.addEventListener("load", () => {
