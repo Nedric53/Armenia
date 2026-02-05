@@ -731,7 +731,6 @@ body.modelPinned #model .stickyViz{
         
     </div>
   </footer>
-
   <script src="https://unpkg.com/scrollama"></script>
   <script>
     const iframe = document.getElementById("viz");
@@ -763,13 +762,11 @@ body.modelPinned #model .stickyViz{
       if (pending.invalidate) _postToViz({ type: "invalidateSize" });
     }
 
-    
     function sendToViz(msg) {
       _remember(msg);
       if (!iframe || !iframe.contentWindow) return;
       _postToViz(msg);
     }
-    
 
     if (iframe) {
       iframe.addEventListener("load", () => {
@@ -800,15 +797,35 @@ body.modelPinned #model .stickyViz{
       steps.forEach(s => s.classList.remove("is-active"));
       el.classList.add("is-active");
 
+      const title = el.dataset.title || ("Step " + String(idx + 1));
+      if (stepName) stepName.textContent = title;
+
+      
+
+      // injected: skip viz updates for idle spacer steps
+      if (el.classList.contains("stepIdle")) {
+        const pct = parseFloat(el.dataset.prog);
+        if (progBar && isFinite(pct)) {
+          progBar.style.width = String(pct.toFixed(1)) + "%";
+        }
+        return;
+      }
+      // end injected
+// Skip iframe updates for idle spacer steps
+      if (el.classList.contains("stepIdle")) {
+        const pctIdle = parseFloat(el.dataset.prog);
+        if (progBar && isFinite(pctIdle)) {
+          progBar.style.width = String(pctIdle.toFixed(1)) + "%";
+        }
+        return;
+      }
+
       const t = parseFloat(el.dataset.t);
       const a = parseFloat(el.dataset.a);
 
       const lat = parseFloat(el.dataset.viewLat);
       const lon = parseFloat(el.dataset.viewLon);
       const zoom = parseFloat(el.dataset.viewZoom);
-
-      const title = el.dataset.title || ("Step " + String(idx + 1));
-      if (stepName) stepName.textContent = title;
 
       if (isFinite(t) && isFinite(a)) sendToViz({ type: "setSliders", t: t, a: a });
       if (isFinite(lat) && isFinite(lon) && isFinite(zoom)) sendToViz({ type: "setView", lat: lat, lon: lon, zoom: zoom });
@@ -824,7 +841,7 @@ body.modelPinned #model .stickyViz{
       }
     }
 
-    // Minibar: show only when sticky map is actually pinned
+    // Minibar: show only when sticky map is pinned
     let pinnedOn = false;
 
     function setPinned(on) {
@@ -904,5 +921,6 @@ body.modelPinned #model .stickyViz{
       schedulePinnedCheck();
     }, 700);
   </script>
+
 </body>
 </html>
