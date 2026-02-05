@@ -409,21 +409,34 @@ body.modelPinned #model .stickyViz{
 
 
 
-/* ---- injected: embed card for compare section ---- */
-.embedCard{
+/* ---- injected: compare section full width + iframe embed ---- */
+#compare{
+  scroll-margin-top: calc(var(--navH) + 16px) !important;
+}
+
+#compare .container{
+  max-width: none !important;
+  width: calc(100vw - (2 * var(--modelPad, 12px))) !important;
+  padding-left: var(--modelPad, 12px) !important;
+  padding-right: var(--modelPad, 12px) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#compare .embedCard{
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius2);
   overflow: hidden;
   box-shadow: var(--shadow);
-  height: min(78vh, 860px);
 }
-.embedCard iframe{
+
+#compare .embedCard iframe{
   width: 100%;
-  height: 100%;
+  height: 700px;        /* initial, JS will override */
   border: 0;
   display: block;
-  background: #fff;
+  overflow: hidden;
 }
 /* ---- end injected block ---- */
 
@@ -439,7 +452,6 @@ body.modelPinned #model .stickyViz{
           <a href="#gallery1">Gallery</a>
           <a href="#model">Model</a>
           <a href="#gallery2">More</a>
-          <a href="#compare">Compare</a>
           <a href="#explain">Explanation</a>
         </div>
       </div>
@@ -706,16 +718,12 @@ body.modelPinned #model .stickyViz{
   <section class="section" id="compare">
     <div class="container">
       <div class="sectionTitle">
-        <h2>Business areas comparison</h2>
-        <p>Compare Yerevan’s dynamic business area with other cities on a common meters scale.</p>
+        <h2>Заголовок блока</h2>
+        <p>Сравнение бизнес-ареалов городов. Фигуры приведены к одной шкале и центрированы по историческому центру (0,0).</p>
       </div>
 
       <div class="embedCard">
-        <iframe src="compare_business_areas.html" title="Business areas comparison" loading="lazy"></iframe>
-      </div>
-
-      <div class="ctaRow" style="margin-top:12px;">
-        <a class="btn" href="compare_business_areas.html" target="_blank" rel="noopener">Open full page</a>
+        <iframe id="compareFrame" src="compare_business_areas.html" title="Заголовок блока" loading="eager" scrolling="no"></iframe>
       </div>
     </div>
   </section>
@@ -949,6 +957,84 @@ body.modelPinned #model .stickyViz{
         sendToViz({ type: "invalidateSize" });
       }
     });
+
+
+    // ---- injected: autosize compare iframe + tighten compare page margins ----
+    const compareFrame = document.getElementById("compareFrame");
+
+    function _compareDoc() {
+      try {
+        return compareFrame && (compareFrame.contentDocument || (compareFrame.contentWindow && compareFrame.contentWindow.document));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function _injectCompareTightStyles(doc) {
+      try {
+        if (!doc || !doc.head) return;
+        if (doc.getElementById("tightCompareStyles")) return;
+
+        const st = doc.createElement("style");
+        st.id = "tightCompareStyles";
+        st.textContent = `
+          .wrap{ max-width:none !important; margin:0 auto !important; padding: 22px 12px 14px !important; }
+          h1{ font-size: clamp(28px, 3.2vw, 44px) !important; }
+          .card{ grid-template-columns: 360px 1fr !important; min-height: 520px !important; }
+          @media (max-width: 980px){
+            .card{ grid-template-columns: 1fr !important; }
+          }
+        `;
+        doc.head.appendChild(st);
+      } catch (e) {}
+    }
+
+    function resizeCompareFrame() {
+      if (!compareFrame) return;
+      const doc = _compareDoc();
+      if (!doc) return;
+
+      _injectCompareTightStyles(doc);
+
+      try {
+        const body = doc.body;
+        const de = doc.documentElement;
+        const h = Math.max(
+          body ? body.scrollHeight : 0,
+          de ? de.scrollHeight : 0,
+          body ? body.offsetHeight : 0,
+          de ? de.offsetHeight : 0
+        );
+        if (h && isFinite(h)) compareFrame.style.height = Math.ceil(h) + "px";
+      } catch (e) {}
+    }
+
+    if (compareFrame) {
+      compareFrame.setAttribute("scrolling", "no");
+      compareFrame.style.overflow = "hidden";
+
+      compareFrame.addEventListener("load", () => {
+        resizeCompareFrame();
+        setTimeout(resizeCompareFrame, 60);
+        setTimeout(resizeCompareFrame, 220);
+        setTimeout(resizeCompareFrame, 900);
+
+        // Observe content size changes (same-origin)
+        try {
+          const doc = _compareDoc();
+          if (doc && doc.body && "ResizeObserver" in window) {
+            const ro = new ResizeObserver(() => resizeCompareFrame());
+            ro.observe(doc.body);
+          }
+        } catch (e) {}
+      });
+
+      window.addEventListener("resize", () => {
+        resizeCompareFrame();
+        setTimeout(resizeCompareFrame, 250);
+      });
+    }
+    // ---- end injected block ----
 
     // Init
     syncNavHeightVar();
