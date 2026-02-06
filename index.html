@@ -292,7 +292,6 @@ body{
   margin-right: auto !important;
 }
 
-
 /* The header inside model should also align with new width */
 #model .modelHeader{
   padding-left: 0 !important;
@@ -426,13 +425,13 @@ body.modelPinned #model .stickyViz{
   margin-right: auto !important;
 }
 
-
+/* Borderless embed wrapper */
 #compare .embedCard{
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius2);
-  overflow: hidden;
-  box-shadow: var(--shadow);
+  background: transparent !important;   /* or #fff if you prefer */
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: var(--radius2) !important;
+  overflow: hidden !important;
 }
 
 #compare .embedCard iframe{
@@ -782,6 +781,7 @@ body.modelPinned #model .stickyViz{
         
     </div>
   </footer>
+
   <script src="https://unpkg.com/scrollama"></script>
   <script>
     const iframe = document.getElementById("viz");
@@ -813,6 +813,7 @@ body.modelPinned #model .stickyViz{
       if (pending.invalidate) _postToViz({ type: "invalidateSize" });
     }
 
+    /* Reliable sendToViz (already safe, no extra patch needed) */
     function sendToViz(msg) {
       _remember(msg);
       if (!iframe || !iframe.contentWindow) return;
@@ -851,18 +852,7 @@ body.modelPinned #model .stickyViz{
       const title = el.dataset.title || ("Step " + String(idx + 1));
       if (stepName) stepName.textContent = title;
 
-      
-
-      // injected: skip viz updates for idle spacer steps
-      if (el.classList.contains("stepIdle")) {
-        const pct = parseFloat(el.dataset.prog);
-        if (progBar && isFinite(pct)) {
-          progBar.style.width = String(pct.toFixed(1)) + "%";
-        }
-        return;
-      }
-      // end injected
-// Skip iframe updates for idle spacer steps
+      // Skip iframe updates for idle spacer steps
       if (el.classList.contains("stepIdle")) {
         const pctIdle = parseFloat(el.dataset.prog);
         if (progBar && isFinite(pctIdle)) {
@@ -963,81 +953,94 @@ body.modelPinned #model .stickyViz{
     });
 
 
-    // ---- injected: autosize compare iframe + tighten compare page margins ----
-    const compareFrame = document.getElementById("compareFrame");
-
-    function _compareDoc() {
-      try {
-        return compareFrame && (compareFrame.contentDocument || (compareFrame.contentWindow && compareFrame.contentWindow.document));
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function _injectCompareTightStyles(doc) {
-      try {
-        if (!doc || !doc.head) return;
-        if (doc.getElementById("tightCompareStyles")) return;
-
-        const st = doc.createElement("style");
-        st.id = "tightCompareStyles";
-        st.textContent = `
-          .wrap{ max-width:none !important; margin:0 auto !important; padding: 22px 12px 14px !important; }
-          h1{ font-size: clamp(28px, 3.2vw, 44px) !important; }
-          .card{ grid-template-columns: 360px 1fr !important; min-height: 520px !important; }
-          @media (max-width: 980px){
-            .card{ grid-template-columns: 1fr !important; }
-          }
-        `;
-        doc.head.appendChild(st);
-      } catch (e) {}
-    }
-
-    function resizeCompareFrame() {
+    // ---- injected: compare iframe autosize (stable, no growth loop) ----
+    (function compareIframeAutosize() {
+      const compareFrame = document.getElementById("compareFrame");
       if (!compareFrame) return;
-      const doc = _compareDoc();
-      if (!doc) return;
 
-      _injectCompareTightStyles(doc);
+      const _COMPARE_PAD = 24; // small safety pad, avoid runaway growth
+      let _lastSet = 0;
 
-      try {
-        const body = doc.body;
-        const de = doc.documentElement;
-        const h = Math.max(
-          body ? body.scrollHeight : 0,
-          de ? de.scrollHeight : 0,
-          body ? body.offsetHeight : 0,
-          de ? de.offsetHeight : 0
-        );
-        if (h && isFinite(h)) compareFrame.style.height = Math.ceil(h) + "px";
-      } catch (e) {}
-    }
+      function setCompareHeight(px) {
+        if (!compareFrame) return;
+        if (typeof px !== "number" || !isFinite(px) || px <= 0) return;
 
-    if (compareFrame) {
+        const next = Math.ceil(px + _COMPARE_PAD);
+
+        // Prevent tiny oscillations
+        if (_lastSet && Math.abs(next - _lastSet) <= 2) return;
+
+        _lastSet = next;
+        compareFrame.style.height = next + "px";
+      }
+
+      // Receive height from compare page
+      window.addEventListener("message", (event) => {
+        const d = event && event.data;
+        if (!d || typeof d !== "object") return;
+        if (d.type === "compareHeight" && typeof d.height === "number") {
+          setCompareHeight(d.height);
+        }
+      });
+
+      function requestCompareHeight() {
+        try {
+          if (compareFrame && compareFrame.contentWindow) {
+            compareFrame.contentWindow.postMessage({ type: "requestHeight" }, "*");
+          }
+        } catch (e) {}
+      }
+
+      // Same-origin fallback: measure .wrap (content), not documentElement.scrollHeight
+      function _compareDoc() {
+        try {
+          return compareFrame.contentDocument || (compareFrame.contentWindow && compareFrame.contentWindow.document) || null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function _computeContentHeightSameOrigin(doc) {
+        try {
+          const wrap = doc && doc.querySelector && doc.querySelector(".wrap");
+          if (wrap) {
+            const h = Math.max(wrap.scrollHeight || 0, wrap.offsetHeight || 0);
+            return (h && isFinite(h)) ? Math.ceil(h) : 0;
+          }
+        } catch (e) {}
+        return 0;
+      }
+
+      function resizeCompareFrameSameOrigin() {
+        const doc = _compareDoc();
+        if (!doc) return;
+        const h = _computeContentHeightSameOrigin(doc);
+        if (h) setCompareHeight(h);
+      }
+
       compareFrame.setAttribute("scrolling", "no");
       compareFrame.style.overflow = "hidden";
 
       compareFrame.addEventListener("load", () => {
-        resizeCompareFrame();
-        setTimeout(resizeCompareFrame, 60);
-        setTimeout(resizeCompareFrame, 220);
-        setTimeout(resizeCompareFrame, 900);
+        requestCompareHeight();
+        setTimeout(requestCompareHeight, 120);
+        setTimeout(requestCompareHeight, 350);
+        setTimeout(requestCompareHeight, 900);
 
-        // Observe content size changes (same-origin)
-        try {
-          const doc = _compareDoc();
-          if (doc && doc.body && "ResizeObserver" in window) {
-            const ro = new ResizeObserver(() => resizeCompareFrame());
-            ro.observe(doc.body);
-          }
-        } catch (e) {}
+        resizeCompareFrameSameOrigin();
+        setTimeout(resizeCompareFrameSameOrigin, 120);
+        setTimeout(resizeCompareFrameSameOrigin, 900);
       });
 
       window.addEventListener("resize", () => {
-        resizeCompareFrame();
-        setTimeout(resizeCompareFrame, 250);
+        requestCompareHeight();
+        resizeCompareFrameSameOrigin();
+        setTimeout(() => {
+          requestCompareHeight();
+          resizeCompareFrameSameOrigin();
+        }, 250);
       });
-    }
+    })();
     // ---- end injected block ----
 
     // Init
