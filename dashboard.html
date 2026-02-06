@@ -140,9 +140,7 @@
 
         /* main has padding top/bottom (18 + 22) = 40 */
         const pad = 40;
-        const side = 0;
-
-        const target = Math.max(520, Math.floor(vh - navH - metaH - pad - side));
+        const target = Math.max(520, Math.floor(vh - navH - metaH - pad));
         if (card) card.style.height = target + "px";
       }
 
