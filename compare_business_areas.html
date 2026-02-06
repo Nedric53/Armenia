@@ -88,7 +88,6 @@
 
 <body>
   <div class="wrap">
-    <h1>Заголовок блока</h1>
     <div class="desc">
       Сравнение бизнес-ареалов городов. Фигуры приведены к одной шкале и центрированы по историческому центру (0,0).
       Ереван меняется по слайдерам, берется из gzip+base64 предрасчета.
@@ -630,5 +629,82 @@
 
     update();
   </script>
+
+  <script id="compareHeightReporter">
+  (function() {
+    function _contentHeight() {
+      try {
+        var wrap = document.querySelector(".wrap");
+        if (wrap) {
+          var h = Math.max(wrap.scrollHeight || 0, wrap.offsetHeight || 0);
+          if (h && isFinite(h)) return Math.ceil(h);
+        }
+
+        // Fallback only if .wrap not found
+        var b = document.body;
+        if (b) {
+          var hb = Math.max(b.scrollHeight || 0, b.offsetHeight || 0);
+          if (hb && isFinite(hb)) return Math.ceil(hb);
+        }
+      } catch (e) {}
+      return 0;
+    }
+
+    function _postHeight() {
+      try {
+        var h = _contentHeight();
+        if (!h || !isFinite(h) || h < 50) return;
+        if (window.parent) {
+          window.parent.postMessage({ type: "compareHeight", height: h }, "*");
+        }
+      } catch (e) {}
+    }
+
+    function _burst() {
+      _postHeight();
+      setTimeout(_postHeight, 60);
+      setTimeout(_postHeight, 180);
+      setTimeout(_postHeight, 420);
+      setTimeout(_postHeight, 900);
+    }
+
+    window.addEventListener("message", function(event) {
+      var d = event && event.data;
+      if (!d || typeof d !== "object") return;
+      if (d.type === "requestHeight") _burst();
+    });
+
+    window.addEventListener("load", _burst);
+    window.addEventListener("resize", function() {
+      _postHeight();
+      setTimeout(_postHeight, 120);
+    });
+
+    if ("ResizeObserver" in window) {
+      try {
+        var ro = new ResizeObserver(function() { _postHeight(); });
+        var wrap = document.querySelector(".wrap");
+        if (wrap) ro.observe(wrap);
+      } catch (e) {}
+    }
+
+    // Wrap update() so height is re-sent after redraws
+    try {
+      if (typeof update === "function" && !update.__heightWrapped) {
+        var _u = update;
+        var wrapped = function() {
+          var r = _u.apply(this, arguments);
+          _burst();
+          return r;
+        };
+        wrapped.__heightWrapped = true;
+        update = wrapped;
+      }
+    } catch (e) {}
+
+    _burst();
+  })();
+  </script>
+
 </body>
 </html>
