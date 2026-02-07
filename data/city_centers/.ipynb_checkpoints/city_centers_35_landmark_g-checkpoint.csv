@@ -1,0 +1,4 @@
+city,historic_lon,historic_lat,business_lon,business_lat,dist_hist_to_bus_m,historic_method,business_method,utm_crs,core_radius_km,grid_cell_m,buffer_m,heritage_points_for_mu,business_points
+"Paris, France",2.3500501,48.8529371,2.34365296210429,48.85994815160874,909.7525331359268,"geocode_landmark:Notre-Dame Cathedral, Paris, France",fixed_point:logit_weights,EPSG:32631,15.0,600.0,600.0,5876,35659
+"Barcelona, Spain",2.1769912,41.3826497,2.161840747737193,41.39885597539131,2200.4380212056426,"geocode_landmark:Plaça de Sant Jaume, Barcelona, Spain",fixed_point:logit_weights,EPSG:32631,15.0,600.0,600.0,2036,12735
+"Vienna, Austria",16.3715166,48.2080838,16.37380184597134,48.20623823824503,266.3178163040145,"geocode_landmark:Stephansplatz, Vienna, Austria",fixed_point:logit_weights,EPSG:32633,15.0,600.0,600.0,8402,16880
